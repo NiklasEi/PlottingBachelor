@@ -9,7 +9,7 @@ def tdrStyle():
 	tdrStyle.SetCanvasColor(ROOT.kWhite)
 	tdrStyle.SetCanvasDefH(800)  #Height of canvas
 	tdrStyle.SetCanvasDefW(800)  #Width of canvas
-	tdrStyle.SetCanvasDefX(0)	#POsition on screen
+	tdrStyle.SetCanvasDefX(0)	#Position on screen
 	tdrStyle.SetCanvasDefY(0)
 
 	# For the Pad:
@@ -80,18 +80,20 @@ def tdrStyle():
 	tdrStyle.SetPadRightMargin(0.03)
 
 	# For the Global title:
-	tdrStyle.SetOptTitle(0)
+	tdrStyle.SetTitleBorderSize(0)# no box arround Title
+	tdrStyle.SetOptTitle(1)
 	tdrStyle.SetTitleFont(42)
 	tdrStyle.SetTitleColor(1)
 	tdrStyle.SetTitleTextColor(1)
 	tdrStyle.SetTitleFillColor(10)
-	tdrStyle.SetTitleFontSize(0.05)
-	#tdrStyle.SetTitleH(0)  # Set the height of the title box
-	#tdrStyle.SetTitleW(0)  # Set the width of the title box
-	#tdrStyle.SetTitleX(0)  # Set the position of the title box
-	#tdrStyle.SetTitleY(0.985)  # Set the position of the title box
+	tdrStyle.SetTitleFontSize(0.0)#0.05
+	tdrStyle.SetTitleH(0.03)  # Set the height of the title box
+	tdrStyle.SetTitleW(0.2)  # Set the width of the title box
+	tdrStyle.SetTitleX(0.2)  # Set the position of the title box
+	tdrStyle.SetTitleY(0.99)  # Set the position of the title box 985
 	#tdrStyle.SetTitleStyle(Style_t style = 1001)
 	#tdrStyle.SetTitleBorderSize(2)
+	tdrStyle.SetTitleAlign(13)
 
 	# For the axis titles:
 	tdrStyle.SetTitleColor(1, "XYZ")
