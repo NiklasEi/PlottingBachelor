@@ -9,6 +9,7 @@ data = ROOT.TChain("myTree")
 # Met Ht PhotonPt
 plotvar="Met" # set plotvar
 BreakFill=0 # if set to 1 the loop will break after 10000 Entries
+PrintMaps=0 # if set to 1 the maps will be printed
 Lint = 13771. # luminosity of the data
 Title=["13.8fb^{-1}", plotvar, "Events"] # plottitle, axislabels (X,Y) is changed afterwards depending on plotvar
 MinMax = [1.,1.,1.,1.,1.] # nBin, lowBin, highBin, Min, Max
@@ -32,17 +33,32 @@ IDVersion =".03_tree.root" #Version of the trees
 # the order in which plots are stacked and generated is set in Names
 # N for data is set to LumData and sigam for data is 1 => weight=1
 Names=["TTJets_V03", "TTGamma_V03", "WGamma_130_inf_V03", "WGamma_50_130_V03", "WJets_250_300_V03", "WJets_300_400_V03", "WJets_400_inf_V03", "ZGammaNuNu_V03", "ZGamma_V02", "QCD_250_500_V03", "QCD_100_250_V09", "QCD_500_1000_V03", "QCD_1000_inf_V03", "GJets_100_200_V09", "GJets_200_400_V03", "GJets_400_inf_V03", "GJets_40_100_V09", "PhotonA_V04", "SinglePhotonB_V04", "SinglePhotonC_V04", "PhotonParkedD_V10"]
-N = {'TTGamma_V03':1719954., 'TTJets_V03':6923652., 'WGamma_130_inf_V03':471458., 'WGamma_50_130_V03':1135698., 'WJets_250_300_V03':4940990., 'WJets_300_400_V03':5141023., 'WJets_400_inf_V03':2871847., 'ZGammaNuNu_V03':489474., 'ZGamma_V02':6321549., 'GJets_100_200_V09':9612703., 'GJets_200_400_V03':57627140., 'GJets_400_inf_V03':42391680., 'GJets_40_100_V09':19857930., 'QCD_250_500_V03':26109530., 'QCD_100_250_V09':50129520., 'QCD_500_1000_V03':29599290., 'QCD_1000_inf_V03':13843860., "PhotonA_V04":Lint, "SinglePhotonB_V04":Lint, "SinglePhotonC_V04":Lint, "PhotonParkedD_V10":Lint }
+#N = {'TTGamma_V03':1719954., 'TTJets_V03':6923652., 'WGamma_130_inf_V03':471458., 'WGamma_50_130_V03':1135698., 'WJets_250_300_V03':4940990., 'WJets_300_400_V03':5141023., 'WJets_400_inf_V03':2871847., 'ZGammaNuNu_V03':489474., 'ZGamma_V02':6321549., 'GJets_100_200_V09':9612703., 'GJets_200_400_V03':57627140., 'GJets_400_inf_V03':42391680., 'GJets_40_100_V09':19857930., 'QCD_250_500_V03':26109530., 'QCD_100_250_V09':50129520., 'QCD_500_1000_V03':29599290., 'QCD_1000_inf_V03':13843860., "PhotonA_V04":Lint, "SinglePhotonB_V04":Lint, "SinglePhotonC_V04":Lint, "PhotonParkedD_V10":Lint }
+N = {}
 sigma = {'TTGamma_V03':2.166, 'TTJets_V03':225.2, 'WGamma_130_inf_V03':0.2571, 'WGamma_50_130_V03':1.17, 'WJets_250_300_V03':48., 'WJets_300_400_V03':38.3, 'WJets_400_inf_V03':25.2, 'ZGammaNuNu_V03':0.074, 'ZGamma_V02':123.9, 'GJets_100_200_V09':5212., 'GJets_200_400_V03':960.5, 'GJets_400_inf_V03':107.5, 'GJets_40_100_V09':20930., 'QCD_250_500_V03':276000., 'QCD_100_250_V09':10360000., 'QCD_500_1000_V03':8426., 'QCD_1000_inf_V03':204., 'PhotonA_V04':1.,  'SinglePhotonB_V04':1., 'SinglePhotonC_V04':1., 'PhotonParkedD_V10':1.}
 Lsim = {}
 FileList = {}
 
 
 for name in Names:
-	Lsim[name]=N[name]/sigma[name] # fill map with luminosity (data Lsim is set to Lint)
 	FileList[name]=ROOT.TFile("/user/eicker/"+name+IDVersion) # fill map with TFiles
+	GenHist = FileList[name].Get("nGen")
+	N[name] = GenHist.GetEntries()
+	print N[name]
+	Lsim[name]=N[name]/sigma[name] # fill map with luminosity (data Lsim is set to Lint)
 
-print Lsim
+if PrintMaps:
+	print "########### Names ############"
+	print Names
+	print "########### N ################"
+	print N
+	print "########### sigma ############"
+	print sigma
+	print "########### Lsim #############"
+	print Lsim
+	print "########### Filelist #########"
+	print FileList
+
 	
 L = ROOT.TLegend(.6,.6,.9,.9)
 
@@ -129,17 +145,17 @@ for variable in Names:
 	print "Added "+variable+IDVersion
 	print "******************************************************************"
 
-
+# Data Trees are added to a chain and then looped over in one loop
 weight=1#set weight=1 for real data
 #Data
 i=0
-for variable in Names:
+for name in Names:
 	if i<17:
 		i+=1
 		continue
 	print "******************************************************************"
 	data.Add("/user/eicker/"+name+IDVersion+"/myTree")#Add Trees to TChain
-	print "Added "+variable+IDVersion+"/myTree  to chain"
+	print "Added "+name+IDVersion+"/myTree  to chain"
 	print "weight is "+str(weight)
 
 print "******************************************************************"
