@@ -13,6 +13,7 @@ PrintMaps=0 # if set to 1 the maps will be printed
 Lint = 13771. # luminosity of the data
 Title=["13.8fb^{-1}", plotvar, "Events"] # plottitle, axislabels (X,Y) is changed afterwards depending on plotvar
 MinMax = [1.,1.,1.,1.,1.] # nBin, lowBin, highBin, Min, Max
+path ="/user/eicker/V04/"
 
 if plotvar == "PhotonPt":
 	Title[1]="PhotonPt(GeV)"
@@ -27,7 +28,7 @@ else:
 	print "no binning information!"
 
 
-IDVersion =".03_tree.root" #Version of the trees
+IDVersion =".04_tree.root" #Version of the trees
 
 # maps used to mesure weight and define TFiles
 # the order in which plots are stacked and generated is set in Names
@@ -41,10 +42,9 @@ FileList = {}
 
 
 for name in Names:
-	FileList[name]=ROOT.TFile("/user/eicker/"+name+IDVersion) # fill map with TFiles
+	FileList[name]=ROOT.TFile(path+name+IDVersion) # fill map with TFiles
 	GenHist = FileList[name].Get("nGen")
 	N[name] = GenHist.GetEntries()
-	print N[name]
 	Lsim[name]=N[name]/sigma[name] # fill map with luminosity (data Lsim is set to Lint)
 
 if PrintMaps:
@@ -79,11 +79,11 @@ for variable in Names:
 		if event.photons.size() ==0:
 			continue
 		if plotvar=="PhotonPt":
-			testHis.Fill( event.photons[0].pt, weight )
+			testHis.Fill( event.photons[0].pt, weight*event.weight )
 		elif plotvar=="Ht":
-			testHis.Fill( event.ht, weight )
+			testHis.Fill( event.ht, weight*event.weight )
 		elif plotvar=="Met":
-			testHis.Fill( event.met, weight )
+			testHis.Fill( event.met, weight*event.weight )
 	
 	if i<2:# select TT
 		if i==1:
@@ -140,7 +140,7 @@ for variable in Names:
 	ROOT.gPad.SaveAs(plotvar+"/"+variable+plotvar+".pdf")
 	i+=1
 	stack.Add(testHis)
-	print 'weight is '+str(weight)
+	print 'weight is '+str(weight)+'times weight from event'
 	print "Integral is: "+str(testHis.Integral())
 	print "Added "+variable+IDVersion
 	print "******************************************************************"
@@ -154,12 +154,12 @@ for name in Names:
 		i+=1
 		continue
 	print "******************************************************************"
-	data.Add("/user/eicker/"+name+IDVersion+"/myTree")#Add Trees to TChain
+	data.Add(path+name+IDVersion+"/myTree")#Add Trees to TChain
 	print "Added "+name+IDVersion+"/myTree  to chain"
 	print "weight is "+str(weight)
 
 print "******************************************************************"
-testHis = ROOT.TH1F( variable, variable, MinMax[0], MinMax[1], MinMax[2] )
+testHis = ROOT.TH1F( "data", "data", MinMax[0], MinMax[1], MinMax[2] )
 stop=0
 
 for event in data:
