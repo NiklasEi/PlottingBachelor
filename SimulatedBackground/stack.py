@@ -8,16 +8,28 @@ data = ROOT.TChain("myTree")
 # possible Variables:
 # Met Ht PhotonPt
 plotvar="Met" # set plotvar
-BreakFill=0 # if set to 1 the loop will break after 10000 Entries
-PrintMaps=0 # if set to 1 the maps will be printed
+BreakFill=1 # if set to 1 the loop will break after 10000 Entries
+PrintMaps=1 # if set to 1 the maps will be printed
 Lint = 13771. # luminosity of the data
 Title=["13.8fb^{-1}", plotvar, "Events"] # plottitle, axislabels (X,Y) is changed afterwards depending on plotvar
 MinMax = [1.,1.,1.,1.,1.] # nBin, lowBin, highBin, Min, Max
-path ="/user/eicker/V04/"
+path ="/user/eicker/V05/"
+
+
+print "Programm is:"
+if BreakFill:
+	"breaking loops after 10000 entries"
+else:
+	"not breaking loops after 10000 entries"
+if PrintMaps:
+	"printing maps with names, files, entries ..."
+else:
+	"not printing maps"
+
 
 if plotvar == "PhotonPt":
 	Title[1]="PhotonPt(GeV)"
-	MinMax = [30,100,1900,0.01,1000000]
+	MinMax = [30,145,1900,0.01,1000000]
 elif plotvar == "Met":
 	Title[1]="E_{T}^{miss}(GeV)"
 	MinMax = [15,0,800,0.01,1000000]
@@ -28,7 +40,7 @@ else:
 	print "no binning information!"
 
 
-IDVersion =".04_tree.root" #Version of the trees
+IDVersion =".05_tree.root" #Version of the trees
 
 # maps used to mesure weight and define TFiles
 # the order in which plots are stacked and generated is set in Names
@@ -140,7 +152,7 @@ for variable in Names:
 	ROOT.gPad.SaveAs(plotvar+"/"+variable+plotvar+".pdf")
 	i+=1
 	stack.Add(testHis)
-	print 'weight is '+str(weight)+'times weight from event'
+	print 'weight is '+str(weight)+' times weight from event'
 	print "Integral is: "+str(testHis.Integral())
 	print "Added "+variable+IDVersion
 	print "******************************************************************"
