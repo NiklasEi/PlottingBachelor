@@ -164,16 +164,18 @@ print GT
 print GL
 
 HistSimGTGL = ROOT.TH1F( "Sim", "Sim", 10, 0, 100 )
-stop=0
+
 for name in Names:
+	print "******************************************************************"
+	stop=0
 	if name == "ZGammaNuNu_V03":
 		print "skipping ZGammaNuNu"
+		print "******************************************************************"
 		continue
 	if name =="PhotonA_V04" or name =="SinglePhotonB_V04" or name =="SinglePhotonC_V04" or name =="PhotonParkedD_V10":
 		print "skipping real Data"
 		print "******************************************************************"
 		continue # filter for simulated data
-	print "******************************************************************"
 	print "looping over: "+path+name+IDVersion
 	tree = FileList[name].Get("myTree")#Inputtree
 	weight = Lint/Lsim[name]
@@ -182,38 +184,38 @@ for name in Names:
 		if stop==10000 and BreakFill:
 			break
 		stop+=1	
-	if event.met > 100:
-		continue
-	if event.met < 10:
-		GT[0] += event.photons.size()*weight
-		GL[0] += event.jetphotons.size()*weight
-	elif event.met < 20:
-		GT[1] += event.photons.size()*weight
-		GL[1] += event.jetphotons.size()*weight
-	elif event.met < 30:
-		GT[2] += event.photons.size()*weight
-		GL[2] += event.jetphotons.size()*weight
-	elif event.met < 40:
-		GT[3] += event.photons.size()*weight
-		GL[3] += event.jetphotons.size()*weight
-	elif event.met < 50:
-		GT[4] += event.photons.size()*weight
-		GL[4] += event.jetphotons.size()*weight
-	elif event.met < 60:
-		GT[5] += event.photons.size()*weight
-		GL[5] += event.jetphotons.size()*weight
-	elif event.met < 70:
-		GT[6] += event.photons.size()*weight
-		GL[6] += event.jetphotons.size()*weight
-	elif event.met < 80:
-		GT[7] += event.photons.size()*weight
-		GL[7] += event.jetphotons.size()*weight
-	elif event.met < 90:
-		GT[8] += event.photons.size()*weight
-		GL[8] += event.jetphotons.size()*weight
-	elif event.met < 100:
-		GT[9] += event.photons.size()*weight
-		GL[9] += event.jetphotons.size()*weight	
+		if event.met > 100:
+			continue
+		if event.met < 10:
+			GT[0] += event.photons.size()*weight*event.weight
+			GL[0] += event.jetphotons.size()*weight*event.weight
+		elif event.met < 20:
+			GT[1] += event.photons.size()*weight*event.weight
+			GL[1] += event.jetphotons.size()*weight*event.weight
+		elif event.met < 30:
+			GT[2] += event.photons.size()*weight*event.weight
+			GL[2] += event.jetphotons.size()*weight*event.weight
+		elif event.met < 40:
+			GT[3] += event.photons.size()*weight*event.weight
+			GL[3] += event.jetphotons.size()*weight*event.weight
+		elif event.met < 50:
+			GT[4] += event.photons.size()*weight*event.weight
+			GL[4] += event.jetphotons.size()*weight*event.weight
+		elif event.met < 60:
+			GT[5] += event.photons.size()*weight*event.weight
+			GL[5] += event.jetphotons.size()*weight*event.weight
+		elif event.met < 70:
+			GT[6] += event.photons.size()*weight*event.weight
+			GL[6] += event.jetphotons.size()*weight*event.weight
+		elif event.met < 80:
+			GT[7] += event.photons.size()*weight*event.weight
+			GL[7] += event.jetphotons.size()*weight*event.weight
+		elif event.met < 90:
+			GT[8] += event.photons.size()*weight*event.weight
+			GL[8] += event.jetphotons.size()*weight*event.weight
+		elif event.met < 100:
+			GT[9] += event.photons.size()*weight*event.weight
+			GL[9] += event.jetphotons.size()*weight*event.weight
 	print "******************************************************************"
 
 print GT

@@ -3,26 +3,31 @@ from treeFunctions import *
 ROOT.gSystem.Load("libTreeObjects.so")
 
 stack = ROOT.THStack("stack", "simulated back ground")
+QCDStack = ROOT.THStack("QCDStack", "simulated QCD")
+GJetsStack = ROOT.THStack("GJetsStack", "simulated GJets")
 data = ROOT.TChain("myTree")
 
+#programm ignores events with 0 tight photons!
+
 # possible Variables:
-# Met Ht PhotonPt
-plotvar="Met" # set plotvar
-BreakFill=1 # if set to 1 the loop will break after 10000 Entries
+# Met Ht PhotonPt PhotonEta PhotonPhi
+plotvar="Ht" # set plotvar
+PrintBreak=0 # if set to 1 'break pdfs' will be printed when running with BreakFill=1
+BreakFill=0 # if set to 1 the loop will break after 10000 Entries
 PrintMaps=0 # if set to 1 the maps will be printed
 Lint = 13771. # luminosity of the data
-Title=["13.8fb^{-1}", plotvar, "Events"] # plottitle, axislabels (X,Y) is changed afterwards depending on plotvar
+Title=["13.8fb^{-1}, #gamma_{tight}>0", plotvar, "Events"] # plottitle, axislabels (X,Y) is changed afterwards depending on plotvar
 MinMax = [1.,1.,1.,1.,1.] # nBin, lowBin, highBin, Min, Max
 path ="/user/eicker/V05/"
 IDVersion =".05_tree.root" #Version of the trees
 
-
+integralGes=0
 print "plotting against "+plotvar
 print "Programm is:"
 if BreakFill:
 	print "breaking loops after 10000 entries and saving *Break.pdf files"
 else:
-	print "not breaking loops after 10000 entries and saving 'main pdfs'"
+	print "looping over all entries and saving 'main pdfs'"
 if PrintMaps:
 	print "printing maps with names, files, entries ..."
 else:
@@ -32,6 +37,12 @@ else:
 if plotvar == "PhotonPt":
 	Title[1]="PhotonPt(GeV)"
 	MinMax = [30,145,1900,0.01,1000000]
+elif plotvar == "PhotonEta":
+	ROOT.gStyle.SetOptLogy(0)
+	MinMax=[30, -1.5, 1.5, 0, 60000]
+elif plotvar == "PhotonPhi":
+	ROOT.gStyle.SetOptLogy(0)
+	MinMax=[30, -3.5, 3.5, 0, 70000]
 elif plotvar == "Met":
 	Title[1]="E_{T}^{miss}(GeV)"
 	MinMax = [15,0,800,0.01,1000000]
@@ -63,13 +74,13 @@ for name in Names:
 if PrintMaps:
 	print "########### Names ############"
 	print Names
-	print "########### N ################"
+	print "############# N ##############"
 	print N
 	print "########### sigma ############"
 	print sigma
 	print "########### Lsim #############"
 	print Lsim
-	print "########### Filelist #########"
+	print "######### Filelist ###########"
 	print FileList
 
 	
@@ -78,10 +89,17 @@ L = ROOT.TLegend(.6,.6,.9,.9)
 
 i=0#counting variable
 for variable in Names:
+	if variable =="PhotonA_V04" or variable =="SinglePhotonB_V04" or variable =="SinglePhotonC_V04" or variable =="PhotonParkedD_V10":
+		continue # filter simulated data
 	print "******************************************************************"
+	print "looping over: "+path+variable+IDVersion
+	if variable == "ZGammaNuNu_V03":
+		print "skipping ZGammaNuNu"
+		print "******************************************************************"
+		i+=1
+		continue
 	tree = FileList[variable].Get("myTree")#Inputtree
 	weight = Lint/Lsim[variable]
-	#testHis=createHistoFromTree(tree, "met", str(weight), 25, 0., 500. )
 	testHis = ROOT.TH1F( variable, variable, MinMax[0], MinMax[1], MinMax[2]  )
 	testHis.SetLineWidth(1)
 	stop=0
@@ -93,6 +111,10 @@ for variable in Names:
 			continue
 		if plotvar=="PhotonPt":
 			testHis.Fill( event.photons[0].pt, weight*event.weight )
+		elif plotvar=="PhotonEta":
+			testHis.Fill( event.photons[0].eta, weight*event.weight )
+		elif plotvar=="PhotonPhi":
+			testHis.Fill( event.photons[0].phi, weight*event.weight )
 		elif plotvar=="Ht":
 			testHis.Fill( event.ht, weight*event.weight )
 		elif plotvar=="Met":
@@ -123,8 +145,6 @@ for variable in Names:
 				L.AddEntry(testHis, "WJets", "f")
 			print "identified WJets"
 		elif i==7:
-			i+=1
-			continue
 			testHis.SetFillColor(ROOT.kRed+2)
 			testHis.SetLineColor(ROOT.kRed+2)
 			L.AddEntry(testHis, "ZGammaNuNu", "f")
@@ -134,35 +154,50 @@ for variable in Names:
 			testHis.SetLineColor(ROOT.kGreen+3)
 			L.AddEntry(testHis, "ZGamma", "f")
 			print "identified ZGamma"
-	elif i<13:#GJets
+	elif i<13:#QCD
 		testHis.SetFillColor(ROOT.kGreen)
 		testHis.SetLineColor(ROOT.kGreen)
 		if i==12:
 			L.AddEntry(testHis, "Multijet", "f")
+		QCDStack.Add(testHis)
+		print "Added "+path+variable+IDVersion+"/myTree  to QCDStack"
 		print "identified QCD and marked Green"
-	elif i<17:#QCD
+	elif i<17:#GJets
 		testHis.SetFillColor(ROOT.kRed+3)
 		testHis.SetLineColor(ROOT.kRed+3)
 		if i==16:
 			L.AddEntry(testHis, "GJets", "f")
+		GJetsStack.Add(testHis)
+		print "Added "+path+variable+IDVersion+"/myTree  to GJetsStack"
 		print "identified GJets and marked Yellow"
-	elif i<21:#Data
-		break
 
 	testHis.Draw()
 	
 	if not BreakFill:
 		ROOT.gPad.SaveAs(plotvar+"/"+variable+plotvar+".pdf")
 	
-	if BreakFill:
+	if BreakFill and PrintBreak:
 		ROOT.gPad.SaveAs(plotvar+"/"+variable+plotvar+"Break.pdf")
 		
 	i+=1
 	stack.Add(testHis)
 	print 'weight is '+str(weight)+' times weight from event'
 	print "Integral is: "+str(testHis.Integral())
+	integralGes+=testHis.Integral()
 	print "Added "+variable+IDVersion
 	print "******************************************************************"
+
+QCDStack.SetMinimum( 0.001 )
+QCDStack.SetMaximum( 1000000 )
+QCDStack.Draw()
+if not BreakFill:
+	ROOT.gPad.SaveAs(plotvar+"/QCDComplete.pdf")
+
+GJetsStack.SetMinimum( 0.001 )
+GJetsStack.SetMaximum( 1000000 )
+GJetsStack.Draw()
+if not BreakFill:
+	ROOT.gPad.SaveAs(plotvar+"/GJetsComplete.pdf")
 
 # Data Trees are added to a chain and then looped over in one loop
 weight=1#set weight=1 for real data
@@ -174,7 +209,7 @@ for name in Names:
 		continue
 	print "******************************************************************"
 	data.Add(path+name+IDVersion+"/myTree")#Add Trees to TChain
-	print "Added "+name+IDVersion+"/myTree  to chain"
+	print "Added "+path+name+IDVersion+"/myTree  to chain"
 	print "weight is "+str(weight)
 
 print "******************************************************************"
@@ -189,6 +224,10 @@ for event in data:
 		continue
 	if plotvar=="PhotonPt":
 		testHis.Fill( event.photons[0].pt, weight )
+	elif plotvar=="PhotonEta":
+		testHis.Fill( event.photons[0].eta, weight )
+	elif plotvar=="PhotonPhi":
+		testHis.Fill( event.photons[0].phi, weight )
 	elif plotvar=="Ht":
 		testHis.Fill( event.ht, weight )
 	elif plotvar=="Met":
@@ -205,10 +244,11 @@ testHis.Draw()
 if not BreakFill:
 	ROOT.gPad.SaveAs(plotvar+"/"+"ChainedData"+plotvar+".pdf")
 
-if BreakFill:
+if BreakFill and PrintBreak:
 	ROOT.gPad.SaveAs(plotvar+"/"+"ChainedData"+plotvar+"Break.pdf")	
 
 print "Integral is: "+str(testHis.Integral())
+print "gesammtes Sim-Integral zum Vergleich: "+str(integralGes)
 print "Data is plotted"
 print "******************************************************************"
 stack.Draw()
@@ -216,7 +256,7 @@ stack.Draw()
 if not BreakFill:
 	ROOT.gPad.SaveAs(plotvar+"/"+"Background"+plotvar+".pdf")
 
-if BreakFill:
+if BreakFill and PrintBreak:
 	ROOT.gPad.SaveAs(plotvar+"/"+"Background"+plotvar+"Break.pdf")
 	
 stack.SetTitle(Title[0])
@@ -238,5 +278,5 @@ ROOT.gPad.RedrawAxis()
 if not BreakFill:
 	ROOT.gPad.SaveAs("Stack"+plotvar+".pdf")
 	
-if BreakFill:
+if BreakFill and PrintBreak:
 	ROOT.gPad.SaveAs("Stack"+plotvar+"Break.pdf")

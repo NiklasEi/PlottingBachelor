@@ -9,7 +9,7 @@ data = ROOT.TChain("myTree")
 
 # possible Variables:
 # Met Ht PhotonPt
-plotvar="Met" # set plotvar
+plotvar="PhotonPt" # set plotvar
 LoopData = 0 # if set to 1 program will loop over simulation AND Data
 BreakFill = 0 # if set to 1 the loop will break after 10000 Entries
 PrintMaps = 0 # if set to 1 the maps will be printed
