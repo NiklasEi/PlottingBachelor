@@ -14,8 +14,10 @@ Lint = 13771. # luminosity of the data
 Title=["13.8fb^{-1}", plotvar, "Events"] # plottitle, axislabels (X,Y) is changed afterwards depending on plotvar
 MinMax = [1.,1.,1.,1.,1.] # nBin, lowBin, highBin, Min, Max
 path ="/user/eicker/V05/"
+IDVersion =".05_tree.root" #Version of the trees
 
 
+print "plotting against "+plotvar
 print "Programm is:"
 if BreakFill:
 	print "breaking loops after 10000 entries and saving *Break.pdf files"
@@ -40,7 +42,6 @@ else:
 	print "no binning information!"
 
 
-IDVersion =".05_tree.root" #Version of the trees
 
 # maps used to mesure weight and define TFiles
 # the order in which plots are stacked and generated is set in Names

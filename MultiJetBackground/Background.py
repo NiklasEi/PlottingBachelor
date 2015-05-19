@@ -1,7 +1,7 @@
 import ROOT
 from treeFunctions import *
 ROOT.gSystem.Load("libTreeObjects.so")
-ROOT.TH1.SetDefaultSumw2()
+#ROOT.TH1.SetDefaultSumw2()
 e=2.7182818284590452353602874713526624977572470937
 
 simulated = ROOT.TChain("myTree")
@@ -13,15 +13,17 @@ plotvar="Met" # set plotvar
 BreakFill = 0 # if set to 1 the loop will break after 10000 Entries
 PrintMaps = 0 # if set to 1 the maps will be printed
 Lint = 13771. # luminosity of the data
-Title=["13.8fb^{-1}", plotvar, "Events"] # plottitle, axislabels (X,Y) is changed afterwards depending on plotvar
+Title=["13.8fb^{-1}", plotvar, "#gamma_{tight}/#gamma_{loose}"] # plottitle, axislabels (X,Y) is changed afterwards depending on plotvar
 MinMax = [1.,1.,1.,1.,1.] # nBin, lowBin, highBin, Min, Max
 path ="/user/eicker/V05/"
+IDVersion =".05_tree.root" #Version of the trees
 
+print "plotting against "+plotvar
 print "Programm is:"
 if BreakFill:
 	print "breaking loops after 10000 entries"
 else:
-	print "not breaking loops after 10000 entries"
+	print "looping over all entries"
 if PrintMaps:
 	print "printing maps with names, files, entries ..."
 else:
@@ -43,8 +45,7 @@ else:
 	print "no binning information!"
 
 
-IDVersion =".05_tree.root" #Version of the trees
-"""
+
 # maps used to mesure weight and define TFiles
 # the order in which plots are stacked and generated is set in Names
 # weight for data has to bet set to 1 later!
@@ -88,11 +89,12 @@ for name in Names:
 		print "Added "+name+IDVersion+"/myTree  to chain"
 
 print "******************************************************************"
-"""
-data.Add(path+"test.root"+"/myTree")
+
+
 HistDataGTGL = ROOT.TH1F( "data", "data", 10, 0, 100 )
 GT = [0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]
 GL = [0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]
+print "************************* looping data ***************************"
 stop = 0
 for event in data:
 	if BreakFill:
@@ -132,15 +134,108 @@ for event in data:
 		GT[9] += event.photons.size()
 		GL[9] += event.jetphotons.size()
 
+print "******************************************************************"
 print GT
 print GL
 i =0
 for i,g in enumerate(GT):
+	if GL[i] == 0:
+		GL[i]=1
+		print "no loose photon in met bin!! set 0 to 1 INVALID PLOTS!"
 	weight = GT[i]/GL[i]
 	print str(weight)+" bei i= "+str(i)
 	HistDataGTGL.Fill(5+i*10, weight)
+	HistDataGTGL.SetBinError(i, 0.000001)
+	GL[i]=0.
+	GT[i]=0.
+
+HistDataGTGL.SetTitle(Title[0])
+HistDataGTGL.GetXaxis().SetTitle(Title[1])
+HistDataGTGL.GetYaxis().SetTitle(Title[2])
+HistDataGTGL.GetXaxis().SetTitleOffset(1)
+HistDataGTGL.GetYaxis().SetTitleOffset(1.2)
+
+HistDataGTGL.Draw("PE")
+ROOT.gPad.SaveAs("GtGlRatioData.pdf")
+
+print "*********************** simulated data ***************************"
+
+print GT
+print GL
+
+HistSimGTGL = ROOT.TH1F( "Sim", "Sim", 10, 0, 100 )
+stop=0
+for name in Names:
+	if name == "ZGammaNuNu_V03":
+		print "skipping ZGammaNuNu"
+		continue
+	if name =="PhotonA_V04" or name =="SinglePhotonB_V04" or name =="SinglePhotonC_V04" or name =="PhotonParkedD_V10":
+		print "skipping real Data"
+		print "******************************************************************"
+		continue # filter for simulated data
+	print "******************************************************************"
+	print "looping over: "+path+name+IDVersion
+	tree = FileList[name].Get("myTree")#Inputtree
+	weight = Lint/Lsim[name]
+	print "weight is "+str(weight)
+	for event in tree:
+		if stop==10000 and BreakFill:
+			break
+		stop+=1	
+	if event.met > 100:
+		continue
+	if event.met < 10:
+		GT[0] += event.photons.size()*weight
+		GL[0] += event.jetphotons.size()*weight
+	elif event.met < 20:
+		GT[1] += event.photons.size()*weight
+		GL[1] += event.jetphotons.size()*weight
+	elif event.met < 30:
+		GT[2] += event.photons.size()*weight
+		GL[2] += event.jetphotons.size()*weight
+	elif event.met < 40:
+		GT[3] += event.photons.size()*weight
+		GL[3] += event.jetphotons.size()*weight
+	elif event.met < 50:
+		GT[4] += event.photons.size()*weight
+		GL[4] += event.jetphotons.size()*weight
+	elif event.met < 60:
+		GT[5] += event.photons.size()*weight
+		GL[5] += event.jetphotons.size()*weight
+	elif event.met < 70:
+		GT[6] += event.photons.size()*weight
+		GL[6] += event.jetphotons.size()*weight
+	elif event.met < 80:
+		GT[7] += event.photons.size()*weight
+		GL[7] += event.jetphotons.size()*weight
+	elif event.met < 90:
+		GT[8] += event.photons.size()*weight
+		GL[8] += event.jetphotons.size()*weight
+	elif event.met < 100:
+		GT[9] += event.photons.size()*weight
+		GL[9] += event.jetphotons.size()*weight	
+	print "******************************************************************"
+
+print GT
+print GL
+i =0
+for i,g in enumerate(GT):
+	if GL[i] == 0:
+		GL[i]=1
+		print "no loose photon in met bin!! set 0 to 1 INVALID PLOTS!"
+	weight = GT[i]/GL[i]
+	print str(weight)+" bei i= "+str(i)
+	HistSimGTGL.Fill(5+i*10, weight)
+	HistSimGTGL.SetBinError(i, 0.000001)
+	GL[i]=0
+	GT[i]=0
 
 
+HistSimGTGL.SetTitle(Title[0])
+HistSimGTGL.GetXaxis().SetTitle(Title[1])
+HistSimGTGL.GetYaxis().SetTitle(Title[2])
+HistSimGTGL.GetXaxis().SetTitleOffset(1)
+HistSimGTGL.GetYaxis().SetTitleOffset(1.2)
 
-HistDataGTGL.Draw()
-ROOT.gPad.SaveAs("GtGlRatio.pdf")
+HistSimGTGL.Draw("PE")
+ROOT.gPad.SaveAs("GtGlRatioSim.pdf")
