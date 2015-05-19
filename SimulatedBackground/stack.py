@@ -9,7 +9,7 @@ data = ROOT.TChain("myTree")
 # Met Ht PhotonPt
 plotvar="Met" # set plotvar
 BreakFill=1 # if set to 1 the loop will break after 10000 Entries
-PrintMaps=1 # if set to 1 the maps will be printed
+PrintMaps=0 # if set to 1 the maps will be printed
 Lint = 13771. # luminosity of the data
 Title=["13.8fb^{-1}", plotvar, "Events"] # plottitle, axislabels (X,Y) is changed afterwards depending on plotvar
 MinMax = [1.,1.,1.,1.,1.] # nBin, lowBin, highBin, Min, Max
@@ -18,13 +18,13 @@ path ="/user/eicker/V05/"
 
 print "Programm is:"
 if BreakFill:
-	"breaking loops after 10000 entries"
+	print "breaking loops after 10000 entries and saving *Break.pdf files"
 else:
-	"not breaking loops after 10000 entries"
+	print "not breaking loops after 10000 entries and saving 'main pdfs'"
 if PrintMaps:
-	"printing maps with names, files, entries ..."
+	print "printing maps with names, files, entries ..."
 else:
-	"not printing maps"
+	print "not printing maps"
 
 
 if plotvar == "PhotonPt":
@@ -149,7 +149,13 @@ for variable in Names:
 		break
 
 	testHis.Draw()
-	ROOT.gPad.SaveAs(plotvar+"/"+variable+plotvar+".pdf")
+	
+	if not BreakFill:
+		ROOT.gPad.SaveAs(plotvar+"/"+variable+plotvar+".pdf")
+	
+	if BreakFill:
+		ROOT.gPad.SaveAs(plotvar+"/"+variable+plotvar+"Break.pdf")
+		
 	i+=1
 	stack.Add(testHis)
 	print 'weight is '+str(weight)+' times weight from event'
@@ -194,14 +200,24 @@ testHis.SetLineWidth(2)
 testHis.SetMarkerStyle(20)
 
 testHis.Draw()
-ROOT.gPad.SaveAs(plotvar+"/"+"ChainedData"+plotvar+".pdf")
+
+if not BreakFill:
+	ROOT.gPad.SaveAs(plotvar+"/"+"ChainedData"+plotvar+".pdf")
+
+if BreakFill:
+	ROOT.gPad.SaveAs(plotvar+"/"+"ChainedData"+plotvar+"Break.pdf")	
 
 print "Integral is: "+str(testHis.Integral())
 print "Data is plotted"
 print "******************************************************************"
 stack.Draw()
-ROOT.gPad.SaveAs(plotvar+"/"+"Background"+plotvar+".pdf")
 
+if not BreakFill:
+	ROOT.gPad.SaveAs(plotvar+"/"+"Background"+plotvar+".pdf")
+
+if BreakFill:
+	ROOT.gPad.SaveAs(plotvar+"/"+"Background"+plotvar+"Break.pdf")
+	
 stack.SetTitle(Title[0])
 stack.GetXaxis().SetTitle(Title[1])
 stack.GetYaxis().SetTitle(Title[2])
@@ -217,4 +233,9 @@ testHis.Draw("samePE")
 L.Draw()
 ROOT.gPad.Update()
 ROOT.gPad.RedrawAxis()
-ROOT.gPad.SaveAs("Stack"+plotvar+".pdf")
+
+if not BreakFill:
+	ROOT.gPad.SaveAs("Stack"+plotvar+".pdf")
+	
+if BreakFill:
+	ROOT.gPad.SaveAs("Stack"+plotvar+"Break.pdf")

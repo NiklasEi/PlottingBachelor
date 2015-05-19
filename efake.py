@@ -20,17 +20,17 @@ path ="/user/eicker/V05/"
 
 print "Programm is:"
 if LoopData:
-	"looping over real data"
+	print "looping over real data"
 else:
-	"not looping over real data"
+	print "not looping over real data"
 if BreakFill:
-	"breaking loops after 10000 entries"
+	print "breaking loops after 10000 entries"
 else:
-	"not breaking loops after 10000 entries"
+	print "not breaking loops after 10000 entries"
 if PrintMaps:
-	"printing maps with names, files, entries ..."
+	print "printing maps with names, files, entries ..."
 else:
-	"not printing maps"
+	print "not printing maps"
 
 
 
