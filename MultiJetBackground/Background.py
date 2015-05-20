@@ -13,14 +13,14 @@ ROOT.gStyle.SetPalette(1)
 # possible Variables:
 # Met Ht PhotonPt
 plotvar="Met" # set plotvar
-BreakFill = 1 # if set to 1 the loop will break after 10000 Entries
+BreakFill = 0 # if set to 1 the loop will break after 10000 Entries
 PrintMaps = 0 # if set to 1 the maps will be printed
 Lint = 13771. # luminosity of the data
 Title=["13.8fb^{-1}", plotvar, "#gamma_{tight}/#gamma_{loose}"] # plottitle, axislabels (X,Y) is changed afterwards depending on plotvar
 MinMax = [1.,1.,1.,1.,1.] # nBin, lowBin, highBin, Min, Max
 path ="/user/eicker/V05/"
 IDVersion =".05_tree.root" #Version of the trees
-homePfad="~/plotting/MultiJetBackground/"
+homePath="~/plotting/MultiJetBackground/"
 
 
 if len(sys.argv)>1:
@@ -194,6 +194,7 @@ for ht in range(0, nBinsHt):
 	for pt in range(0, nBinsPt):
 		GLBin = HistDataHtPtGL.GetBinContent(ht, pt)
 		GTBin = HistDataHtPtGT.GetBinContent(ht, pt)
+		GTBin = float(GTBin)
 		if GLBin ==0:
 			HistDataHtPtWeight.SetBinContent(ht, pt, 0)
 			count+=1
@@ -203,19 +204,19 @@ print str(count)+" out of "+str(nBinsHt*nBinsPt)+" Bins had to be set to zero be
 print "*************** finished setting Bincontents *********************"
 
 HistDataHtPtGL.Draw("colz")
-ROOT.gPad.SaveAs(homePfad+"GLHtPt.pdf")
+ROOT.gPad.SaveAs(homePath+"GLHtPt.pdf")
 
 HistDataHtPtGT.Draw("colz")
-ROOT.gPad.SaveAs(homePfad+"GTHtPt.pdf")
+ROOT.gPad.SaveAs(homePath+"GTHtPt.pdf")
 
 HistDataHtPtWeight.Draw("colz")
-ROOT.gPad.SaveAs(homePfad+"GtGlRatioDataHtPt.pdf")
+ROOT.gPad.SaveAs(homePath+"GtGlRatioDataHtPt.pdf")
 
 HistIsoGT.Draw("colz")
-ROOT.gPad.SaveAs(homePfad+"GTIso.pdf")
+ROOT.gPad.SaveAs(homePath+"GTIso.pdf")
 
 HistIsoGL.Draw("colz")
-ROOT.gPad.SaveAs(homePfad+"GLIso.pdf")
+ROOT.gPad.SaveAs(homePath+"GLIso.pdf")
 
 print "******************************************************************"
 print GT
@@ -239,12 +240,35 @@ HistDataGTGL.GetXaxis().SetTitleOffset(1)
 HistDataGTGL.GetYaxis().SetTitleOffset(1.2)
 
 HistDataGTGL.Draw("PE")
-ROOT.gPad.SaveAs(homePfad+"GtGlRatioDataMet.pdf")
+ROOT.gPad.SaveAs(homePath+"GtGlRatioDataMet.pdf")
 
 print "*********************** simulated data ***************************"
 
 print GT
 print GL
+
+HistSimHtPtGT = ROOT.TH2F( "SimHtPtGT", "SimHtPtGT", nBinsPt, 100, 800, nBinsHt, 0, 1600)
+HistSimHtPtGT.SetTitle(Title[0]+" #gamma_{tight} simulated data")
+HistSimHtPtGT.GetXaxis().SetTitle("I_{#pm}")
+HistSimHtPtGT.GetYaxis().SetTitle("I_{0}")
+
+HistSimHtPtGL = ROOT.TH2F( "SimHtPtGL", "SimHtPtGL", nBinsPt, 100, 800, nBinsHt, 0, 1600)
+HistSimHtPtGL.SetTitle(Title[0]+" #gamma_{loose} simulated data")
+HistSimHtPtGL.GetXaxis().SetTitle("I_{#pm}")
+HistSimHtPtGL.GetYaxis().SetTitle("I_{0}")
+
+HistSimHtPtWeight = ROOT.TH2F( "simHtPtWeight", "simHtPtWeight", nBinsPt, 100, 800, nBinsHt, 0, 1600)
+HistSimHtPtWeight.GetXaxis().SetTitle("Pt")
+HistSimHtPtWeight.GetYaxis().SetTitle("Ht")
+HistSimHtPtWeight.SetTitle(Title[0]+" #gamma_{tight}/#gamma_{loose} simulated data")
+
+HistSimIsoGT = ROOT.TH2F( "simIsoGT", "simIsoGT", 100, 0, 30, 100, 0, 40)
+HistSimIsoGT.SetTitle(Title[0]+" #gamma_{tight} simulated data")
+
+HistSimIsoGL = ROOT.TH2F( "simIsoGL", "simIsoGL", 100, 0, 30, 100, 0, 40)
+HistSimIsoGL.SetTitle(Title[0]+" #gamma_{loose} simulated data")
+
+
 
 HistSimGTGL = ROOT.TH1F( "Sim", "Sim", 10, 0, 100 )
 
@@ -300,7 +324,46 @@ for name in Names:
 		elif event.met < 100:
 			GT[9] += event.photons.size()*weight*event.weight
 			GL[9] += event.jetphotons.size()*weight*event.weight
+		if event.photons.size()>0:
+			HistSimHtPtGT.Fill(event.photons[0].pt, event.ht, event.photons.size()*weight*event.weight)
+			HistSimIsoGT.Fill(event.photons[0].chargedIso, event.photons[0].neutralIso, event.photons.size()*weight*event.weight )
+		if event.jetphotons.size()>0:
+			HistSimHtPtGL.Fill(event.jetphotons[0].pt, event.ht, event.jetphotons.size()*weight*event.weight)
+			HistSimIsoGL.Fill(event.jetphotons[0].chargedIso, event.jetphotons[0].neutralIso, event.jetphotons.size()*weight*event.weight )
 	print "******************************************************************"
+
+
+
+count=0
+print "****************** setting 2D-Bincontents ************************"
+for ht in range(0, nBinsHt):
+	for pt in range(0, nBinsPt):
+		GLBin = HistSimHtPtGL.GetBinContent(ht, pt)
+		GTBin = HistSimHtPtGT.GetBinContent(ht, pt)
+		GTBin = float(GTBin)
+		if GLBin ==0.:
+			HistSimHtPtWeight.SetBinContent(ht, pt, 0.)
+			count+=1
+		else:
+			HistSimHtPtWeight.SetBinContent(ht, pt, GTBin/GLBin)
+print str(count)+" out of "+str(nBinsHt*nBinsPt)+" Bins had to be set to zero because GLBin was empty"
+print "*************** finished setting Bincontents *********************"
+
+HistDataHtPtGL.Draw("colz")
+ROOT.gPad.SaveAs(homePath+"Sim/"+"GLHtPtSim.pdf")
+
+HistDataHtPtGT.Draw("colz")
+ROOT.gPad.SaveAs(homePath+"Sim/"+"GTHtPtSim.pdf")
+
+HistDataHtPtWeight.Draw("colz")
+ROOT.gPad.SaveAs(homePath+"Sim/"+"GtGlRatioDataHtPtSim.pdf")
+
+HistIsoGT.Draw("colz")
+ROOT.gPad.SaveAs(homePath+"Sim/"+"GTIsoSim.pdf")
+
+HistIsoGL.Draw("colz")
+ROOT.gPad.SaveAs(homePath+"Sim/"+"GLIsoSim.pdf")
+
 
 print GT
 print GL
@@ -324,4 +387,4 @@ HistSimGTGL.GetXaxis().SetTitleOffset(1)
 HistSimGTGL.GetYaxis().SetTitleOffset(1.2)
 
 HistSimGTGL.Draw("PE")
-ROOT.gPad.SaveAs(homePfad+"GtGlRatioSim.pdf")
+ROOT.gPad.SaveAs(homePath+"Sim/"+"GtGlRatioSim.pdf")
