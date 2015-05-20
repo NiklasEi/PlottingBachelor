@@ -1,4 +1,5 @@
 import ROOT
+import sys
 from treeFunctions import *
 ROOT.gSystem.Load("libTreeObjects.so")
 
@@ -20,6 +21,26 @@ Title=["13.8fb^{-1}, #gamma_{tight}>0", plotvar, "Events"] # plottitle, axislabe
 MinMax = [1.,1.,1.,1.,1.] # nBin, lowBin, highBin, Min, Max
 path ="/user/eicker/V05/"
 IDVersion =".05_tree.root" #Version of the trees
+
+
+
+
+if len(sys.argv)>1:
+	if len(sys.argv)==2:
+		print "found argument: "+sys.argv[1]
+		if sys.argv[1]=="Met" or sys.argv[1]=="Ht" or sys.argv[1]=="PhotonPt" or sys.argv[1]=="PhotonEta" or sys.argv[1]=="PhotonPhi":
+			plotvar=sys.argv[1]
+			print "set plotvar = "+sys.argv[1]
+	if len(sys.argv)==3:
+		print "found arguments: "+sys.argv[1]+" and "+sys.argv[2]
+		if sys.argv[1]=="Met" or sys.argv[1]=="Ht" or sys.argv[1]=="PhotonPt" or sys.argv[1]=="PhotonEta" or sys.argv[1]=="PhotonPhi":
+			plotvar=sys.argv[1]
+			BreakFill=int(sys.argv[2])
+			print "set plotvar = "+sys.argv[1]+" and BreakFill was set to "+sys.argv[2]
+		
+
+
+
 
 integralGes=0
 print "plotting against "+plotvar

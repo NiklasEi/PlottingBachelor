@@ -1,4 +1,5 @@
 import ROOT
+import sys
 from treeFunctions import *
 ROOT.gSystem.Load("libTreeObjects.so")
 ROOT.TH1.SetDefaultSumw2()
@@ -18,6 +19,25 @@ Title=["13.8fb^{-1}", plotvar, "Events"] # plottitle, axislabels (X,Y) is change
 MinMax = [1.,1.,1.,1.,1.] # nBin, lowBin, highBin, Min, Max
 path ="/user/eicker/V05/"
 IDVersion =".05_tree.root" #Version of the trees
+
+
+
+
+if len(sys.argv)>1:
+	if len(sys.argv)==2:
+		print "found argument: "+sys.argv[1]
+		if sys.argv[1]=="Met" or sys.argv[1]=="Ht" or sys.argv[1]=="PhotonPt":
+			plotvar=sys.argv[1]
+			print "set plotvar = "+sys.argv[1]
+	if len(sys.argv)==3:
+		print "found arguments: "+sys.argv[1]+" and "+sys.argv[2]
+		if sys.argv[1]=="Met" or sys.argv[1]=="Ht" or sys.argv[1]=="PhotonPt":
+			plotvar=sys.argv[1]
+			BreakFill=int(sys.argv[2])
+			print "set plotvar = "+sys.argv[1]+" and BreakFill was set to "+sys.argv[2]
+		
+
+
 
 print "plotting against "+plotvar
 print "Programm is:"
@@ -59,6 +79,8 @@ N = {}
 sigma = {'TTGamma_V03':2.166, 'TTJets_V03':225.2, 'WGamma_130_inf_V03':0.2571, 'WGamma_50_130_V03':1.17, 'WJets_250_300_V03':48., 'WJets_300_400_V03':38.3, 'WJets_400_inf_V03':25.2, 'ZGammaNuNu_V03':0.074, 'ZGamma_V02':123.9, 'GJets_100_200_V09':5212., 'GJets_200_400_V03':960.5, 'GJets_400_inf_V03':107.5, 'GJets_40_100_V09':20930., 'QCD_250_500_V03':276000., 'QCD_100_250_V09':10360000., 'QCD_500_1000_V03':8426., 'QCD_1000_inf_V03':204., 'PhotonA_V04':1.,  'SinglePhotonB_V04':1., 'SinglePhotonC_V04':1., 'PhotonParkedD_V10':1.}
 Lsim = {}
 FileList = {}
+
+
 
 
 for name in Names:

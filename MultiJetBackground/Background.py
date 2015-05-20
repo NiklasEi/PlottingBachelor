@@ -1,4 +1,5 @@
 import ROOT
+import sys
 from treeFunctions import *
 ROOT.gSystem.Load("libTreeObjects.so")
 #ROOT.TH1.SetDefaultSumw2()
@@ -6,17 +7,38 @@ e=2.7182818284590452353602874713526624977572470937
 
 simulated = ROOT.TChain("myTree")
 data = ROOT.TChain("myTree")
+ROOT.gStyle.SetPalette(1)
+
 
 # possible Variables:
 # Met Ht PhotonPt
 plotvar="Met" # set plotvar
-BreakFill = 0 # if set to 1 the loop will break after 10000 Entries
+BreakFill = 1 # if set to 1 the loop will break after 10000 Entries
 PrintMaps = 0 # if set to 1 the maps will be printed
 Lint = 13771. # luminosity of the data
 Title=["13.8fb^{-1}", plotvar, "#gamma_{tight}/#gamma_{loose}"] # plottitle, axislabels (X,Y) is changed afterwards depending on plotvar
 MinMax = [1.,1.,1.,1.,1.] # nBin, lowBin, highBin, Min, Max
 path ="/user/eicker/V05/"
 IDVersion =".05_tree.root" #Version of the trees
+
+
+if len(sys.argv)>1:
+	if len(sys.argv)==2:
+		print "found argument: "+sys.argv[1]
+		if sys.argv[1]=="Met" or sys.argv[1]=="Ht" or sys.argv[1]=="PhotonPt":
+			plotvar=sys.argv[1]
+			print "set plotvar = "+sys.argv[1]
+	if len(sys.argv)==3:
+		print "found arguments: "+sys.argv[1]+" and "+sys.argv[2]
+		if sys.argv[1]=="Met" or sys.argv[1]=="Ht" or sys.argv[1]=="PhotonPt":
+			plotvar=sys.argv[1]
+			BreakFill=int(sys.argv[2])
+			print "set plotvar = "+sys.argv[1]+" and BreakFill was set to "+sys.argv[2]
+		
+
+
+
+
 
 print "plotting against "+plotvar
 print "Programm is:"
@@ -89,9 +111,32 @@ for name in Names:
 		print "Added "+name+IDVersion+"/myTree  to chain"
 
 print "******************************************************************"
+nBinsHt = 150
+nBinsPt = 100
 
+HistDataHtPtGT = ROOT.TH2F( "dataHtPtGT", "dataHtPtGT", nBinsPt, 100, 800, nBinsHt, 0, 1600)
+HistDataHtPtGT.SetTitle(Title[0]+" #gamma_{tight}")
+HistDataHtPtGT.GetXaxis().SetTitle("I_{#pm}")
+HistDataHtPtGT.GetYaxis().SetTitle("I_{0}")
+
+HistDataHtPtGL = ROOT.TH2F( "dataHtPtGL", "dataHtPtGL", nBinsPt, 100, 800, nBinsHt, 0, 1600)
+HistDataHtPtGL.SetTitle(Title[0]+" #gamma_{loose}")
+HistDataHtPtGL.GetXaxis().SetTitle("I_{#pm}")
+HistDataHtPtGL.GetYaxis().SetTitle("I_{0}")
+
+HistDataHtPtWeight = ROOT.TH2F( "dataHtPtWeight", "dataHtPtWeight", nBinsPt, 100, 800, nBinsHt, 0, 1600)
+HistDataHtPtWeight.GetXaxis().SetTitle("Pt")
+HistDataHtPtWeight.GetYaxis().SetTitle("Ht")
+HistDataHtPtWeight.SetTitle(Title[0]+" #gamma_{tight}/#gamma_{loose}")
+
+HistIsoGT = ROOT.TH2F( "IsoGT", "IsoGT", 100, 0, 30, 100, 0, 40)
+HistIsoGT.SetTitle(Title[0]+" #gamma_{tight}")
+
+HistIsoGL = ROOT.TH2F( "IsoGL", "IsoGL", 100, 0, 30, 100, 0, 40)
+HistIsoGL.SetTitle(Title[0]+" #gamma_{loose}")
 
 HistDataGTGL = ROOT.TH1F( "data", "data", 10, 0, 100 )
+
 GT = [0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]
 GL = [0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]
 print "************************* looping data ***************************"
@@ -133,6 +178,43 @@ for event in data:
 	elif event.met < 100:
 		GT[9] += event.photons.size()
 		GL[9] += event.jetphotons.size()
+	if event.photons.size()>0:
+		HistDataHtPtGT.Fill(event.photons[0].pt, event.ht, event.photons.size())
+		HistIsoGT.Fill(event.photons[0].chargedIso, event.photons[0].neutralIso, event.photons.size() )
+	if event.jetphotons.size()>0:
+		HistDataHtPtGL.Fill(event.jetphotons[0].pt, event.ht, event.jetphotons.size())
+		HistIsoGL.Fill(event.jetphotons[0].chargedIso, event.jetphotons[0].neutralIso, event.jetphotons.size() )
+print "******************** finished looping data ***********************"
+print "******************************************************************"
+		
+count=0
+print "****************** setting 2D-Bincontents ************************"
+for ht in range(0, nBinsHt):
+	for pt in range(0, nBinsPt):
+		GLBin = HistDataHtPtGL.GetBinContent(ht, pt)
+		GTBin = HistDataHtPtGT.GetBinContent(ht, pt)
+		if GLBin ==0:
+			HistDataHtPtWeight.SetBinContent(ht, pt, 0)
+			count+=1
+		else:
+			HistDataHtPtWeight.SetBinContent(ht, pt, GTBin/GLBin)
+print str(count)+" out of "+str(nBinsHt*nBinsPt)+" Bins had to be set to zero because GLBin was empty"
+print "*************** finished setting Bincontents *********************"
+
+HistDataHtPtGL.Draw("colz")
+ROOT.gPad.SaveAs("GLHtPt.pdf")
+
+HistDataHtPtGT.Draw("colz")
+ROOT.gPad.SaveAs("GTHtPt.pdf")
+
+HistDataHtPtWeight.Draw("colz")
+ROOT.gPad.SaveAs("GtGlRatioDataHtPt.pdf")
+
+HistIsoGT.Draw("colz")
+ROOT.gPad.SaveAs("GTIso.pdf")
+
+HistIsoGL.Draw("colz")
+ROOT.gPad.SaveAs("GLIso.pdf")
 
 print "******************************************************************"
 print GT
@@ -156,7 +238,7 @@ HistDataGTGL.GetXaxis().SetTitleOffset(1)
 HistDataGTGL.GetYaxis().SetTitleOffset(1.2)
 
 HistDataGTGL.Draw("PE")
-ROOT.gPad.SaveAs("GtGlRatioData.pdf")
+ROOT.gPad.SaveAs("GtGlRatioDataMet.pdf")
 
 print "*********************** simulated data ***************************"
 
@@ -164,6 +246,7 @@ print GT
 print GL
 
 HistSimGTGL = ROOT.TH1F( "Sim", "Sim", 10, 0, 100 )
+
 
 for name in Names:
 	print "******************************************************************"
