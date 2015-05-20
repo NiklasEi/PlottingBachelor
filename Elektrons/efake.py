@@ -19,7 +19,7 @@ Title=["13.8fb^{-1}", plotvar, "Events"] # plottitle, axislabels (X,Y) is change
 MinMax = [1.,1.,1.,1.,1.] # nBin, lowBin, highBin, Min, Max
 path ="/user/eicker/V05/"
 IDVersion =".05_tree.root" #Version of the trees
-
+homePfad="~/plotting/Elektrons/"
 
 
 
@@ -323,7 +323,7 @@ for i,hist in enumerate(Histos):
 
 	ROOT.gPad.Update()
 	ROOT.gPad.RedrawAxis()
-	ROOT.gPad.SaveAs(plotvar+"/"+TempTitle+plotvar+"EFakes.pdf")	
+	ROOT.gPad.SaveAs(homePfad+plotvar+"/"+TempTitle+plotvar+"EFakes.pdf")	
 
 
 
@@ -358,5 +358,5 @@ HistSimGen.Draw("samePEX0")
 L.Draw()
 ROOT.gPad.Update()
 ROOT.gPad.RedrawAxis()
-ROOT.gPad.SaveAs(plotvar+"/"+plotvar+"EFakes.pdf")
+ROOT.gPad.SaveAs(homePfad+plotvar+"/"+plotvar+"EFakes.pdf")
 

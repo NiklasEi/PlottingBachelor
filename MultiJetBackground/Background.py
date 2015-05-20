@@ -20,6 +20,7 @@ Title=["13.8fb^{-1}", plotvar, "#gamma_{tight}/#gamma_{loose}"] # plottitle, axi
 MinMax = [1.,1.,1.,1.,1.] # nBin, lowBin, highBin, Min, Max
 path ="/user/eicker/V05/"
 IDVersion =".05_tree.root" #Version of the trees
+homePfad="~/plotting/MultiJetBackground/"
 
 
 if len(sys.argv)>1:
@@ -202,19 +203,19 @@ print str(count)+" out of "+str(nBinsHt*nBinsPt)+" Bins had to be set to zero be
 print "*************** finished setting Bincontents *********************"
 
 HistDataHtPtGL.Draw("colz")
-ROOT.gPad.SaveAs("GLHtPt.pdf")
+ROOT.gPad.SaveAs(homePfad+"GLHtPt.pdf")
 
 HistDataHtPtGT.Draw("colz")
-ROOT.gPad.SaveAs("GTHtPt.pdf")
+ROOT.gPad.SaveAs(homePfad+"GTHtPt.pdf")
 
 HistDataHtPtWeight.Draw("colz")
-ROOT.gPad.SaveAs("GtGlRatioDataHtPt.pdf")
+ROOT.gPad.SaveAs(homePfad+"GtGlRatioDataHtPt.pdf")
 
 HistIsoGT.Draw("colz")
-ROOT.gPad.SaveAs("GTIso.pdf")
+ROOT.gPad.SaveAs(homePfad+"GTIso.pdf")
 
 HistIsoGL.Draw("colz")
-ROOT.gPad.SaveAs("GLIso.pdf")
+ROOT.gPad.SaveAs(homePfad+"GLIso.pdf")
 
 print "******************************************************************"
 print GT
@@ -238,7 +239,7 @@ HistDataGTGL.GetXaxis().SetTitleOffset(1)
 HistDataGTGL.GetYaxis().SetTitleOffset(1.2)
 
 HistDataGTGL.Draw("PE")
-ROOT.gPad.SaveAs("GtGlRatioDataMet.pdf")
+ROOT.gPad.SaveAs(homePfad+"GtGlRatioDataMet.pdf")
 
 print "*********************** simulated data ***************************"
 
@@ -323,4 +324,4 @@ HistSimGTGL.GetXaxis().SetTitleOffset(1)
 HistSimGTGL.GetYaxis().SetTitleOffset(1.2)
 
 HistSimGTGL.Draw("PE")
-ROOT.gPad.SaveAs("GtGlRatioSim.pdf")
+ROOT.gPad.SaveAs(homePfad+"GtGlRatioSim.pdf")
