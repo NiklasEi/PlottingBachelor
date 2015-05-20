@@ -21,7 +21,7 @@ Title=["13.8fb^{-1}, #gamma_{tight}>0", plotvar, "Events"] # plottitle, axislabe
 MinMax = [1.,1.,1.,1.,1.] # nBin, lowBin, highBin, Min, Max
 path ="/user/eicker/V05/"
 IDVersion =".05_tree.root" #Version of the trees
-homePfad="~/plotting/SimulatedBackground/"
+homePath="~/plotting/SimulatedBackground/"
 
 
 
@@ -195,10 +195,10 @@ for variable in Names:
 	testHis.Draw()
 	
 	if not BreakFill:
-		ROOT.gPad.SaveAs(homePfad+plotvar+"/"+variable+plotvar+".pdf")
+		ROOT.gPad.SaveAs(homePath+plotvar+"/"+variable+plotvar+".pdf")
 	
 	if BreakFill and PrintBreak:
-		ROOT.gPad.SaveAs(homePfad+plotvar+"/"+variable+plotvar+"Break.pdf")
+		ROOT.gPad.SaveAs(homePath+plotvar+"/"+variable+plotvar+"Break.pdf")
 		
 	i+=1
 	stack.Add(testHis)
@@ -212,13 +212,13 @@ QCDStack.SetMinimum( 0.001 )
 QCDStack.SetMaximum( 1000000 )
 QCDStack.Draw()
 if not BreakFill:
-	ROOT.gPad.SaveAs(homePfad+plotvar+"/QCDComplete.pdf")
+	ROOT.gPad.SaveAs(homePath+plotvar+"/QCDComplete.pdf")
 
 GJetsStack.SetMinimum( 0.001 )
 GJetsStack.SetMaximum( 1000000 )
 GJetsStack.Draw()
 if not BreakFill:
-	ROOT.gPad.SaveAs(homePfad+plotvar+"/GJetsComplete.pdf")
+	ROOT.gPad.SaveAs(homePath+plotvar+"/GJetsComplete.pdf")
 
 # Data Trees are added to a chain and then looped over in one loop
 weight=1#set weight=1 for real data
@@ -263,10 +263,10 @@ testHis.SetMarkerStyle(20)
 testHis.Draw()
 
 if not BreakFill:
-	ROOT.gPad.SaveAs(homePfad+plotvar+"/"+"ChainedData"+plotvar+".pdf")
+	ROOT.gPad.SaveAs(homePath+plotvar+"/"+"ChainedData"+plotvar+".pdf")
 
 if BreakFill and PrintBreak:
-	ROOT.gPad.SaveAs(homePfad+plotvar+"/"+"ChainedData"+plotvar+"Break.pdf")	
+	ROOT.gPad.SaveAs(homePath+plotvar+"/"+"ChainedData"+plotvar+"Break.pdf")	
 
 print "Integral is: "+str(testHis.Integral())
 print "gesammtes Sim-Integral zum Vergleich: "+str(integralGes)
@@ -275,10 +275,10 @@ print "******************************************************************"
 stack.Draw()
 
 if not BreakFill:
-	ROOT.gPad.SaveAs(homePfad+plotvar+"/"+"Background"+plotvar+".pdf")
+	ROOT.gPad.SaveAs(homePath+plotvar+"/"+"Background"+plotvar+".pdf")
 
 if BreakFill and PrintBreak:
-	ROOT.gPad.SaveAs(homePfad+plotvar+"/"+"Background"+plotvar+"Break.pdf")
+	ROOT.gPad.SaveAs(homePath+plotvar+"/"+"Background"+plotvar+"Break.pdf")
 	
 stack.SetTitle(Title[0])
 stack.GetXaxis().SetTitle(Title[1])
@@ -297,7 +297,7 @@ ROOT.gPad.Update()
 ROOT.gPad.RedrawAxis()
 
 if not BreakFill:
-	ROOT.gPad.SaveAs(homePfad+"Stack"+plotvar+".pdf")
+	ROOT.gPad.SaveAs(homePath+"Stack"+plotvar+".pdf")
 	
 if BreakFill and PrintBreak:
-	ROOT.gPad.SaveAs(homePfad+"Stack"+plotvar+"Break.pdf")
+	ROOT.gPad.SaveAs(homePath+"Stack"+plotvar+"Break.pdf")
