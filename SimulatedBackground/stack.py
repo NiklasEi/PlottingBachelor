@@ -12,7 +12,7 @@ data = ROOT.TChain("myTree")
 
 # possible Variables:
 # Met Ht PhotonPt PhotonEta PhotonPhi
-plotvar="Ht" # set plotvar
+plotvar="Ht" # set plotvar 
 PrintBreak=0 # if set to 1 'break pdfs' will be printed when running with BreakFill=1
 BreakFill=0 # if set to 1 the loop will break after 10000 Entries
 PrintMaps=0 # if set to 1 the maps will be printed
@@ -59,11 +59,11 @@ if plotvar == "PhotonPt":
 	Title[1]="PhotonPt(GeV)"
 	MinMax = [30,145,1900,0.01,1000000]
 elif plotvar == "PhotonEta":
-	ROOT.gStyle.SetOptLogy(0)
-	MinMax=[30, -1.5, 1.5, 0, 60000]
+	#ROOT.gStyle.SetOptLogy(0)
+	MinMax=[30, -1.5, 1.5, 0.01, 1000000000]
 elif plotvar == "PhotonPhi":
-	ROOT.gStyle.SetOptLogy(0)
-	MinMax=[30, -3.5, 3.5, 0, 70000]
+	#ROOT.gStyle.SetOptLogy(0)
+	MinMax=[30, -3.5, 3.5, 0.01, 1000000000]
 elif plotvar == "Met":
 	Title[1]="E_{T}^{miss}(GeV)"
 	MinMax = [15,0,800,0.01,1000000]

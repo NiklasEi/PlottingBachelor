@@ -317,7 +317,7 @@ for i,hist in enumerate(Histos):
 
 	LTemp = ROOT.TLegend(.6,.75,.9,.9)
 	LTemp.AddEntry(hist[0], "Direct simulation", "ep")
-	LTemp.AddEntry(hist[1], "Prediction", "f")	
+	LTemp.AddEntry(hist[1], "Prediction", "f")
 	LTemp.AddEntry(TempClone, "systematic Error", "f")
 	LTemp.Draw()
 
