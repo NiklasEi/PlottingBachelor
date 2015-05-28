@@ -5,8 +5,10 @@ ROOT.gSystem.Load("libTreeObjects.so")
 ROOT.TH1.SetDefaultSumw2()
 e=2.7182818284590452353602874713526624977572470937
 
-simulated = ROOT.TChain("myTree")
-data = ROOT.TChain("myTree")
+
+data = ROOT.TChain("myTree") # chain for data
+# change status to recreate if you change keys in .Write() otherwise "update"
+TFileEfake = ROOT.TFile("TFileEfake.root", "update") # TFile to save histos
 
 # possible Variables:
 # Met Ht PhotonPt
@@ -17,8 +19,8 @@ PrintMaps = 0 # if set to 1 the maps will be printed
 Lint = 13771. # luminosity of the data
 Title=["13.8fb^{-1}", plotvar, "Events"] # plottitle, axislabels (X,Y) is changed afterwards depending on plotvar
 MinMax = [1.,1.,1.,1.,1.] # nBin, lowBin, highBin, Min, Max
-path ="/user/eicker/V05/"
-IDVersion =".05_tree.root" #Version of the trees
+path ="/user/eicker/test/"
+IDVersion =".Test_tree.root" #Version of the trees
 homePath="~/plotting/Elektrons/"
 
 
@@ -166,6 +168,8 @@ HistoZGammaFake = ROOT.TH1F( "", "", MinMax[0], MinMax[1], MinMax[2] )
 HistoQCDFake = ROOT.TH1F( "", "", MinMax[0], MinMax[1], MinMax[2] )
 HistoGJetsFake = ROOT.TH1F( "", "", MinMax[0], MinMax[1], MinMax[2] )
 
+Histos = [[HistoTTJetsGen, HistoTTJetsFake], [HistoTTGammaGen, HistoTTGammaFake], [HistoWJetsGen, HistoWJetsFake], [HistoWGammaGen, HistoWGammaFake], [HistoZGammaGen, HistoZGammaFake], [HistoQCDGen, HistoQCDFake], [HistoGJetsGen, HistoGJetsFake]]
+
 
 print "******************************************************************"		
 print "**********************    simulation    **************************"
@@ -182,37 +186,31 @@ for name in Names: # loop over names
 	print "looping over: "+path+name+IDVersion
 
 	if name == "TTJets_V03":
-		HistSimGenTemp = HistoTTJetsGen.Clone( "HistSimGenTemp" )
-		HistSimFakeTemp = HistoTTJetsFake.Clone( "HistSimFakeTemp" )
-		print "filling in clone of HistoTTJetsGen and HistoTTJetsFake"
+		i=0
+		print "filling in "+str(Histos[i][0])+" und "+str(Histos[i][1])
 	if name == "TTGamma_V03":
-		HistSimGenTemp = HistoTTGammaGen.Clone( "HistSimGenTemp" )
-		HistSimFakeTemp = HistoTTGammaFake.Clone( "HistSimFakeTemp" )
-		print "filling in clone of HistoTTGammaGen and HistoTTGammaFake"
-	if name == "WGamma_130_inf_V03" or name == "WGamma_50_130_V03":
-		HistSimGenTemp = HistoWGammaGen.Clone( "HistSimGenTemp" )
-		HistSimFakeTemp = HistoWGammaFake.Clone( "HistSimFakeTemp" )
-		print "filling in clone of HistoWGammaGen and HistoWGammaFake"
+		i=1
+		print "filling in "+str(Histos[i][0])+" und "+str(Histos[i][1])
 	if name == "WJets_250_300_V03" or name == "WJets_300_400_V03" or name == "WJets_400_inf_V03":
-		HistSimGenTemp = HistoWJetsGen.Clone( "HistSimGenTemp" )
-		HistSimFakeTemp = HistoWJetsFake.Clone( "HistSimFakeTemp" )
-		print "filling in clone of HistoWJetsGen and HistoWJetsFake"
+		i=2
+		print "filling in "+str(Histos[i][0])+" und "+str(Histos[i][1])
+	if name == "WGamma_130_inf_V03" or name == "WGamma_50_130_V03":
+		i=3
+		print "filling in "+str(Histos[i][0])+" und "+str(Histos[i][1])
 	if name == "ZGamma_V02":
-		HistSimGenTemp = HistoZGammaGen.Clone( "HistSimGenTemp" )
-		HistSimFakeTemp = HistoZGammaFake.Clone( "HistSimFakeTemp" )
-		print "filling in clone of HistoZGammaGen and HistoZGammaFake"
+		i=4
+		print "filling in "+str(Histos[i][0])+" und "+str(Histos[i][1])
 	if name == "QCD_250_500_V03" or name == "QCD_100_250_V09" or name == "QCD_500_1000_V03" or name == "QCD_1000_inf_V03":
-		HistSimGenTemp = HistoQCDGen.Clone( "HistSimGenTemp" )
-		HistSimFakeTemp = HistoQCDFake.Clone( "HistSimFakeTemp" )
-		print "filling in clone of HistoQCDGen and HistoQCDFake"
+		i=5
+		print "filling in "+str(Histos[i][0])+" und "+str(Histos[i][1])
 	if name == "GJets_100_200_V09" or name == "GJets_200_400_V03" or name == "GJets_400_inf_V03" or name == "GJets_40_100_V09":
-		HistSimGenTemp = HistoGJetsGen.Clone( "HistSimGenTemp" )
-		HistSimFakeTemp = HistoGJetsFake.Clone( "HistSimFakeTemp" )
-		print "filling in clone of HistoGJetsGen and HistoGJetsFake"
+		i=6
+		print "filling in "+str(Histos[i][0])+" und "+str(Histos[i][1])
 
 	tree = FileList[name].Get("myTree")#Inputtree
 	weight = Lint/Lsim[name]
 	print "weight is "+str(weight)
+	stop=0
 	for event in tree:
 		if stop==10000 and BreakFill:
 			break
@@ -227,53 +225,31 @@ for name in Names: # loop over names
 			if event.photons[0].genElectron:
 				if plotvar=="PhotonPt":
 					HistSimGen.Fill( event.photons[0].pt, weight*event.weight )
-					HistSimGenTemp.Fill( event.photons[0].pt, weight*event.weight )
+					Histos[i][0].Fill( event.photons[0].pt, weight*event.weight )
 				elif plotvar=="Ht":
 					HistSimGen.Fill( event.ht, weight*event.weight )
-					HistSimGenTemp.Fill( event.ht, weight*event.weight )
+					Histos[i][0].Fill( event.ht, weight*event.weight )
 				elif plotvar=="Met":
 					HistSimGen.Fill( event.met, weight*event.weight )
-					HistSimGenTemp.Fill( event.met, weight*event.weight )
+					Histos[i][0].Fill( event.met, weight*event.weight )
 		if event.electrons.size()>0:
 			eweight = 1 - (1 - 0.00623) * (1 - pow(event.electrons[0].pt / 4.2 + 1,-2.9)) * (1 - 0.29 * pow(e,-0.335 * event.nTracksPV)) * (1 - 0.000223 * event.nVertex)
 			if plotvar=="PhotonPt":
 				HistSimFake.Fill( event.electrons[0].pt, eweight*event.weight )
-				HistSimFakeTemp.Fill( event.electrons[0].pt, eweight*event.weight*weight )
+				Histos[i][1].Fill( event.electrons[0].pt, eweight*event.weight*weight )
 			elif plotvar=="Ht":
 				HistSimFake.Fill( event.ht, eweight*event.weight*weight )
-				HistSimFakeTemp.Fill( event.ht, eweight*event.weight*weight )
+				Histos[i][1].Fill( event.ht, eweight*event.weight*weight )
 			elif plotvar=="Met":
 				HistSimFake.Fill( event.met, eweight*event.weight*weight )
-				HistSimFakeTemp.Fill( event.met, eweight*event.weight*weight )
-
-	if name == "TTJets_V03":
-		HistoTTJetsGen = HistSimGenTemp.Clone( "HistoTTJetsGen" )
-		HistoTTJetsFake = HistSimFakeTemp.Clone( "HistoTTJetsFake" )
-	if name == "TTGamma_V03":
-		HistoTTGammaGen = HistSimGenTemp.Clone( "HistoTTGammaGen" )
-		HistoTTGammaFake = HistSimFakeTemp.Clone( "HistoTTGammaFake" )
-	if name == "WGamma_130_inf_V03" or name == "WGamma_50_130_V03":
-		HistoWGammaGen = HistSimGenTemp.Clone( "HistoWGammaGen" )
-		HistoWGammaFake = HistSimFakeTemp.Clone( "HistoWGammaFake" )
-	if name == "WJets_250_300_V03" or name == "WJets_300_400_V03" or name == "WJets_400_inf_V03":
-		HistoWJetsGen = HistSimGenTemp.Clone( "HistoWJetsGen" )
-		HistoWJetsFake = HistSimFakeTemp.Clone( "HistoWJetsFake" )
-	if name == "ZGamma_V02":
-		HistoZGammaGen = HistSimGenTemp.Clone( "HistoZGammaGen" )
-		HistoZGammaFake = HistSimFakeTemp.Clone( "HistoZGammaFake" )
-	if name == "QCD_250_500_V03" or name == "QCD_100_250_V09" or name == "QCD_500_1000_V03" or name == "QCD_1000_inf_V03":
-		HistoQCDGen = HistSimGenTemp.Clone( "HistoQCDGen" )
-		HistoQCDFake = HistSimFakeTemp.Clone( "HistoQCDFake" )
-	if name == "GJets_100_200_V09" or name == "GJets_200_400_V03" or name == "GJets_400_inf_V03" or name == "GJets_40_100_V09":
-		HistoGJetsGen = HistSimGenTemp.Clone( "HistoGJetsGen" )
-		HistoGJetsFake = HistSimFakeTemp.Clone( "HistoGJetsFake" )
+				Histos[i][1].Fill( event.met, eweight*event.weight*weight )
 
 	print "******************************************************************"
 
-Histos = [[HistoTTJetsGen, HistoTTJetsFake], [HistoTTGammaGen, HistoTTGammaFake], [HistoWJetsGen, HistoWJetsFake], [HistoWGammaGen, HistoWGammaFake], [HistoZGammaGen, HistoZGammaFake], [HistoQCDGen, HistoQCDFake], [HistoGJetsGen, HistoGJetsFake]]
-#Fake = [HistoTTJetsFake, HistoTTGammaFake, HistoWJetsFake, HistoWGammaFake, HistoZGammaFake, HistoQCDFake, HistoGJetsFake]
 
-
+TFileEfake.cd()
+i = 0
+i = int(i)
 for i,hist in enumerate(Histos):
 	if i==0:
 		TempTitle="TTJets"
@@ -303,8 +279,8 @@ for i,hist in enumerate(Histos):
 	hist[1].GetYaxis().SetTitleOffset(1)
 
 	TempClone = hist[1].Clone("TempClone")
-	for i in range(0, MinMax[0]):
-		TempClone.SetBinError(i,0.11*TempClone.GetBinContent(i))
+	for i2 in range(0, MinMax[0]):
+		TempClone.SetBinError(i2,0.11*TempClone.GetBinContent(i2))
 
 	TempClone.SetFillColor(4)
 	TempClone.SetLineColor(4)
@@ -323,8 +299,10 @@ for i,hist in enumerate(Histos):
 
 	ROOT.gPad.Update()
 	ROOT.gPad.RedrawAxis()
-	ROOT.gPad.SaveAs(homePath+plotvar+"/"+TempTitle+plotvar+"EFakes.pdf")	
-
+	ROOT.gPad.SaveAs(homePath+plotvar+"/"+TempTitle+plotvar+"EFakes.pdf")
+	print "i = "+str(i)
+	Histos[i][1].Write("Sim"+plotvar+TempTitle+"Fake")	
+	Histos[i][0].Write("Sim"+plotvar+TempTitle+"Gen")	
 
 
 HistSimFake.SetLineColor(2)
@@ -359,4 +337,5 @@ L.Draw()
 ROOT.gPad.Update()
 ROOT.gPad.RedrawAxis()
 ROOT.gPad.SaveAs(homePath+plotvar+"/"+plotvar+"EFakes.pdf")
-
+HistSimGen.Write(plotvar+"SimGen")
+HistSimFake.Write(plotvar+"SimFake")
