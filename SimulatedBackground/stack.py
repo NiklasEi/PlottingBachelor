@@ -7,7 +7,7 @@ ROOT.gSystem.Load("libTreeObjects.so")
 TFileStack = ROOT.TFile("TFileStack.root", "update") # TFile to save histos
 
 """
-This programm stacks all simulated events to be able to compare it to Data.
+This program stacks all simulated events to be able to compare it to Data.
 Plots are saved for every simulation and for stacked simulation (all QCD/all GJet)
 
 """

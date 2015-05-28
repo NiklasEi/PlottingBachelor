@@ -5,6 +5,10 @@ ROOT.gSystem.Load("libTreeObjects.so")
 ROOT.TH1.SetDefaultSumw2()
 e=2.7182818284590452353602874713526624977572470937
 
+"""
+to estimate photonfakes comming from electrons, a formula is used f = f(nVertex, nTracksPV, electron.pt)
+to varify the method it is used on simulated data
+"""
 
 data = ROOT.TChain("myTree") # chain for data
 # change status to recreate if you change keys in .Write() otherwise "update"
