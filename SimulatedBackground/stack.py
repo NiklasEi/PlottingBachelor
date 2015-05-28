@@ -3,10 +3,20 @@ import sys
 from treeFunctions import *
 ROOT.gSystem.Load("libTreeObjects.so")
 
+# change status to recreate if you change keys in .Write() otherwise "update"
+TFileStack = ROOT.TFile("TFileStack.root", "update") # TFile to save histos
+
+"""
+This programm stacks all simulated events to be able to compare it to Data.
+Plots are saved for every simulation and for stacked simulation (all QCD/all GJet)
+
+"""
+
 stack = ROOT.THStack("stack", "simulated back ground")
 QCDStack = ROOT.THStack("QCDStack", "simulated QCD")
 GJetsStack = ROOT.THStack("GJetsStack", "simulated GJets")
 data = ROOT.TChain("myTree")
+
 
 #programm ignores events with 0 tight photons!
 
@@ -19,8 +29,8 @@ PrintMaps=0 # if set to 1 the maps will be printed
 Lint = 13771. # luminosity of the data
 Title=["13.8fb^{-1}, #gamma_{tight}>0", plotvar, "Events"] # plottitle, axislabels (X,Y) is changed afterwards depending on plotvar
 MinMax = [1.,1.,1.,1.,1.] # nBin, lowBin, highBin, Min, Max
-path ="/user/eicker/V05/"
-IDVersion =".05_tree.root" #Version of the trees
+path ="/user/eicker/test/"
+IDVersion =".Test_tree.root" #Version of the trees
 homePath="~/plotting/SimulatedBackground/"
 
 
@@ -125,7 +135,7 @@ for variable in Names:
 	testHis.SetLineWidth(1)
 	stop=0
 	for event in tree:
-		if stop==10000 and BreakFill:
+		if stop==100000 and BreakFill:
 			break
 		stop+=1	
 		if event.photons.size() ==0:
@@ -206,6 +216,8 @@ for variable in Names:
 	print "Integral is: "+str(testHis.Integral())
 	integralGes+=testHis.Integral()
 	print "Added "+variable+IDVersion
+	TFileStack.cd()
+	testHis.Write(variable+plotvar)
 	print "******************************************************************"
 
 QCDStack.SetMinimum( 0.001 )
@@ -271,6 +283,8 @@ if BreakFill and PrintBreak:
 print "Integral is: "+str(testHis.Integral())
 print "gesammtes Sim-Integral zum Vergleich: "+str(integralGes)
 print "Data is plotted"
+TFileStack.cd()
+testHis.Write("Data"+plotvar)
 print "******************************************************************"
 stack.Draw()
 
@@ -296,8 +310,6 @@ L.Draw()
 ROOT.gPad.Update()
 ROOT.gPad.RedrawAxis()
 
-if not BreakFill:
-	ROOT.gPad.SaveAs(homePath+"Stack"+plotvar+".pdf")
 	
 if BreakFill and PrintBreak:
 	ROOT.gPad.SaveAs(homePath+"Stack"+plotvar+"Break.pdf")
