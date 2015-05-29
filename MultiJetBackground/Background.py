@@ -29,14 +29,12 @@ Styles.tdrStyle2D() # set style for 2D histos
 #ROOT.gStyle.SetPalette(1)
 Canvas1 = ROOT.TCanvas ("canvas1", "canvas1")
 
-# possible Variables:       just Met implemented jet 
-# Met Ht PhotonPt
-plotvar="Met" # set plotvar
+plotvar="Met" # set plotvar Backround only uses it to set axis Titles
 BreakFill = 0 # if set to 1 the loop will break after 10000 Entries
 PrintMaps = 0 # if set to 1 the maps will be printed
 Lint = 13771. # luminosity of the data
 Title=["13.8fb^{-1}", plotvar, "#gamma_{tight}/#gamma_{loose}"] # plottitle, axislabels (X,Y) is changed afterwards depending on plotvar
-MinMax = [1.,1.,1.,1.,1.] # nBin, lowBin, highBin, Min, Max
+
 path ="/user/eicker/V07/"
 IDVersion =".07_tree.root" #Version of the trees
 homePath="~/plotting/MultiJetBackground/"
@@ -44,18 +42,14 @@ homePath="~/plotting/MultiJetBackground/"
 
 if len(sys.argv)>1:
 	if len(sys.argv)==2:
-		print "found argument: "+sys.argv[1]
-		if sys.argv[1]=="Met" or sys.argv[1]=="Ht" or sys.argv[1]=="PhotonPt":
-			plotvar=sys.argv[1]
-			print "set plotvar = "+sys.argv[1]
-	if len(sys.argv)==3:
-		print "found arguments: "+sys.argv[1]+" and "+sys.argv[2]
-		if sys.argv[1]=="Met" or sys.argv[1]=="Ht" or sys.argv[1]=="PhotonPt":
-			plotvar=sys.argv[1]
-			BreakFill=int(sys.argv[2])
-			print "set plotvar = "+sys.argv[1]+" and BreakFill was set to "+sys.argv[2]
+		print "found "+sys.argv[1]+" arguments"
+		if sys.argv[1]=="0" or sys.argv[1]=="1":
+			BreakFill=int(sys.argv[1])
+			print "set Breakfill = "+sys.argv[1]
+		else:
+			sys.exit("Wrong argument given! BreakFill can be set to 0 or 1") 
 	else:
-		print "too many arguments!"
+		sys.exit("too many arguments given! Expected 1")
 
 
 
@@ -71,21 +65,7 @@ if PrintMaps:
 else:
 	print "not printing maps"
 
-
-
-
-if plotvar == "PhotonPt":
-	Title[1]="PhotonPt(GeV)"
-	MinMax = [30,145,1900,0.01,1000000]
-elif plotvar == "Met":
-	Title[1]="E_{T}^{miss}(GeV)"
-	MinMax = [15,0,800,0.01,1000000]
-elif plotvar == "Ht":
-	Title[1]="Ht(GeV)"
-	MinMax = [25,0,1800,0.1,100000000]
-else:
-	print "no binning information!"
-
+Title[1]="E_{T}^{miss}(GeV)"
 
 
 # maps used to mesure weight and define TFiles
@@ -529,23 +509,29 @@ print "****************** setting 2D-Bincontents ************************"
 
 HistDataHtPtGT.Divide(HistDataHtPtGL)
 HistSimHtPtGT.Divide(HistSimHtPtGL)
-countWeights=0.
-meanWeight=0.
+countWeightsSim=0.
+meanWeightSim=0.
 for ht in range(1, nBinsHt+1): # Bin numbers start at 1 first bin (1,1)
 	for pt in range(1, nBinsPt+1):
 		BinsCount+=1
-		HistSimHtPtWeightError.SetBinContent(pt, ht, (float(HistSimHtPtGT.GetBinError(pt, ht))/float(HistSimHtPtGT.GetBinContent(pt, ht)))) # relative Error on w(i)
-		HistDataHtPtWeightError.SetBinContent(pt, ht, (float(HistDataHtPtGT.GetBinError(pt, ht))/float(HistDataHtPtGT.GetBinContent(pt, ht))))
 
 		if HistSimHtPtGT.GetBinContent(pt, ht)!=0:
-			countWeights+=1.
-			meanWeight+=HistSimHtPtGT.GetBinContent(pt, ht)
+			countWeightsSim+=1.
+			meanWeightSim+=HistSimHtPtGT.GetBinContent(pt, ht)
+			HistSimHtPtWeightError.SetBinContent(pt, ht, (float(HistSimHtPtGT.GetBinError(pt, ht))/float(HistSimHtPtGT.GetBinContent(pt, ht)))) # relative Error on w(i)
+		elif HistSimHtPtGT.GetBinContent(pt, ht)==0:
+			HistSimHtPtWeightError.SetBinContent(pt, ht, 0) # relative Error on w(i)
+
+		if HistDataHtPtGT.GetBinContent(pt, ht)!=0:
+			HistDataHtPtWeightError.SetBinContent(pt, ht, (float(HistDataHtPtGT.GetBinError(pt, ht))/float(HistDataHtPtGT.GetBinContent(pt, ht))))
+		elif HistDataHtPtGT.GetBinContent(pt, ht)==0:
+			HistDataHtPtWeightError.SetBinContent(pt, ht, 0)
 
 		HistSimHtPtWeight.SetBinContent(pt, ht, HistSimHtPtGT.GetBinContent(pt, ht))
 		HistDataHtPtWeight.SetBinContent(pt, ht, HistDataHtPtGT.GetBinContent(pt, ht))
-meanWeight=(float(meanWeight)/float(countWeights)) # calculate meanweight for empty Bins
+meanWeightSim=(float(meanWeightSim)/float(countWeightsSim)) # calculate meanweight for empty Bins for simulation
 print str(BinsCount)+" of "+str(nBinsHt*nBinsPt)+" Bins were looped over"
-print "Mean weight is "+str(meanWeight)
+print "Mean weight for Simulation is "+str(meanWeightSim)
 print "*************** finished setting Bincontents *********************"
 print "******************************************************************"
 
@@ -585,7 +571,7 @@ print "******************************************************************"
 print "***************** filling comparison Plots ***********************"
 
 
-countMeanWeight=0
+countMeanWeightSim=0
 for name in Names:
 	print "******************************************************************"
 	print "looping over: "+path+name+IDVersion
@@ -639,8 +625,8 @@ for name in Names:
 			if status=="sim":
 				weightGTGL = HistSimHtPtWeight.GetBinContent(pt, ht)
 				if weightGTGL==0:
-					weightGTGL=meanWeight
-					countMeanWeight+=1
+					weightGTGL=meanWeightSim
+					countMeanWeightSim+=1
 				if name == "QCD_250_500_V03" or name=="QCD_100_250_V09" or name=="QCD_500_1000_V03" or name=="QCD_1000_inf_V03" or name=="GJets_100_200_V09" or name=="GJets_200_400_V03" or name=="GJets_400_inf_V03" or name=="GJets_40_100_V09":
 					HistSimBackgroundPredictionMet.Fill(event.met, weight*event.weight*weightGTGL)
 					HistSimBackgroundMetNW.Fill(event.met, weight*event.weight)
@@ -675,7 +661,7 @@ for name in Names:
 					HistSimBackgroundPhotonPt.Fill(event.photons[0].ptMJet, weight*event.weight)
 							
 	print "******************************************************************"
-print "Mean weight had to be used "+str(countMeanWeight)+" times because messured weight was zero"
+print "Simulation: Mean weight had to be used "+str(countMeanWeightSim)+" times because messured weight was zero"
 TFileBackground.cd()
 
 ROOT.gStyle.SetOptLogz(0)
