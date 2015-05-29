@@ -529,43 +529,23 @@ print "****************** setting 2D-Bincontents ************************"
 
 HistDataHtPtGT.Divide(HistDataHtPtGL)
 HistSimHtPtGT.Divide(HistSimHtPtGL)
-
+countWeights=0.
+meanWeight=0.
 for ht in range(1, nBinsHt+1): # Bin numbers start at 1 first bin (1,1)
 	for pt in range(1, nBinsPt+1):
 		BinsCount+=1
-		HistSimHtPtWeightError.SetBinContent(pt, ht, (float(HistSimHtPtGT.GetBinError(pt, ht))/float(HistSimHtPtGT.GetBinContent(pt, ht))))
+		HistSimHtPtWeightError.SetBinContent(pt, ht, (float(HistSimHtPtGT.GetBinError(pt, ht))/float(HistSimHtPtGT.GetBinContent(pt, ht)))) # relative Error on w(i)
 		HistDataHtPtWeightError.SetBinContent(pt, ht, (float(HistDataHtPtGT.GetBinError(pt, ht))/float(HistDataHtPtGT.GetBinContent(pt, ht))))
-		
+
+		if HistSimHtPtGT.GetBinContent(pt, ht)!=0:
+			countWeights+=1.
+			meanWeight+=HistSimHtPtGT.GetBinContent(pt, ht)
+
 		HistSimHtPtWeight.SetBinContent(pt, ht, HistSimHtPtGT.GetBinContent(pt, ht))
 		HistDataHtPtWeight.SetBinContent(pt, ht, HistDataHtPtGT.GetBinContent(pt, ht))
-		"""
-		GLBinData = HistDataHtPtGL.GetBinContent(pt, ht)
-		GTBinData = HistDataHtPtGT.GetBinContent(pt, ht)
-		GTBinData = float(GTBinData)
-		GLBinData = float(GLBinData)
-		GLBinSim = HistSimHtPtGL.GetBinContent(pt, ht)
-		GTBinSim = HistSimHtPtGT.GetBinContent(pt, ht)
-		GTBinSim = float(GTBinSim)
-		GLBinSim = float(GLBinSim)
-		
-		if GLBinData ==0:
-			HistDataHtPtWeight.SetBinContent(pt, ht, 0)
-			HistDataHtPtWeightError.SetBinContent(pt, ht, 0.)
-			countData+=1
-		if GLBinSim == 0:
-			HistSimHtPtWeight.SetBinContent(pt, ht, 0.)
-			HistSimHtPtWeightError.SetBinContent(pt, ht, 0.)
-			countSim+=1
-		if GLBinData != 0:
-			HistDataHtPtWeight.SetBinContent(pt, ht, GTBinData/GLBinData)
-			HistDataHtPtWeightError.SetBinContent(pt, ht, HistSimHtPtWeight.GetBinError(pt, ht))
-		if GLBinSim != 0:
-			HistSimHtPtWeight.SetBinContent(pt, ht, GTBinSim/GLBinSim)
-			HistSimHtPtWeightError.SetBinContent(pt, ht, HistSimHtPtWeight.GetBinError(pt, ht))
-		"""
-#print str(countData)+" out of "+str(nBinsHt*nBinsPt)+" Bins for Data had to be set to zero because GLBinData was empty"
-#print str(countSim)+" out of "+str(nBinsHt*nBinsPt)+" Bins for Simulation had to be set to zero because GLBinSim was empty"
+meanWeight=(float(meanWeight)/float(countWeights)) # calculate meanweight for empty Bins
 print str(BinsCount)+" of "+str(nBinsHt*nBinsPt)+" Bins were looped over"
+print "Mean weight is "+str(meanWeight)
 print "*************** finished setting Bincontents *********************"
 print "******************************************************************"
 
@@ -605,7 +585,7 @@ print "******************************************************************"
 print "***************** filling comparison Plots ***********************"
 
 
-
+countMeanWeight=0
 for name in Names:
 	print "******************************************************************"
 	print "looping over: "+path+name+IDVersion
@@ -658,6 +638,9 @@ for name in Names:
 			ht = int(ht)+1
 			if status=="sim":
 				weightGTGL = HistSimHtPtWeight.GetBinContent(pt, ht)
+				if weightGTGL==0:
+					weightGTGL=meanWeight
+					countMeanWeight+=1
 				if name == "QCD_250_500_V03" or name=="QCD_100_250_V09" or name=="QCD_500_1000_V03" or name=="QCD_1000_inf_V03" or name=="GJets_100_200_V09" or name=="GJets_200_400_V03" or name=="GJets_400_inf_V03" or name=="GJets_40_100_V09":
 					HistSimBackgroundPredictionMet.Fill(event.met, weight*event.weight*weightGTGL)
 					HistSimBackgroundMetNW.Fill(event.met, weight*event.weight)
@@ -692,7 +675,7 @@ for name in Names:
 					HistSimBackgroundPhotonPt.Fill(event.photons[0].ptMJet, weight*event.weight)
 							
 	print "******************************************************************"
-
+print "Mean weight had to be used "+str(countMeanWeight)+" times because messured weight was zero"
 TFileBackground.cd()
 
 ROOT.gStyle.SetOptLogz(0)
