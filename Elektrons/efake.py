@@ -23,8 +23,8 @@ PrintMaps = 0 # if set to 1 the maps will be printed
 Lint = 13771. # luminosity of the data
 Title=["13.8fb^{-1}", plotvar, "Events"] # plottitle, axislabels (X,Y) is changed afterwards depending on plotvar
 MinMax = [1.,1.,1.,1.,1.] # nBin, lowBin, highBin, Min, Max
-path ="/user/eicker/test/"
-IDVersion =".Test_tree.root" #Version of the trees
+path ="/user/eicker/V07/"
+IDVersion =".07_tree.root" #Version of the trees
 homePath="~/plotting/Elektrons/"
 
 
@@ -135,6 +135,7 @@ if LoopData:
 	stop=0
 	for event in data: # loop over datachain
 		if stop==10000 and BreakFill:
+			print "breaking loop..."
 			break
 		stop+=1
 		if event.photons.size()>0:
@@ -217,6 +218,7 @@ for name in Names: # loop over names
 	stop=0
 	for event in tree:
 		if stop==10000 and BreakFill:
+			print "breaking loop..."
 			break
 		stop+=1
 		if event.photons.size()>0:

@@ -29,8 +29,8 @@ PrintMaps=0 # if set to 1 the maps will be printed
 Lint = 13771. # luminosity of the data
 Title=["13.8fb^{-1}, #gamma_{tight}>0", plotvar, "Events"] # plottitle, axislabels (X,Y) is changed afterwards depending on plotvar
 MinMax = [1.,1.,1.,1.,1.] # nBin, lowBin, highBin, Min, Max
-path ="/user/eicker/test/"
-IDVersion =".Test_tree.root" #Version of the trees
+path ="/user/eicker/V07/"
+IDVersion =".07_tree.root" #Version of the trees
 homePath="~/plotting/SimulatedBackground/"
 
 
@@ -70,10 +70,12 @@ if plotvar == "PhotonPt":
 	MinMax = [30,145,1900,0.01,1000000]
 elif plotvar == "PhotonEta":
 	#ROOT.gStyle.SetOptLogy(0)
-	MinMax=[30, -1.5, 1.5, 0.01, 1000000000]
+	MinMax=[32, -1.6, 1.6, 0.1, 1000000000]
+	Title[1]="#eta_{Photon}"
 elif plotvar == "PhotonPhi":
 	#ROOT.gStyle.SetOptLogy(0)
-	MinMax=[30, -3.5, 3.5, 0.01, 1000000000]
+	MinMax=[30, -3.5, 3.5, 0.1, 1000000000]
+	Title[1]="#varphi_{Photon}"
 elif plotvar == "Met":
 	Title[1]="E_{T}^{miss}(GeV)"
 	MinMax = [15,0,800,0.01,1000000]
@@ -135,7 +137,8 @@ for variable in Names:
 	testHis.SetLineWidth(1)
 	stop=0
 	for event in tree:
-		if stop==100000 and BreakFill:
+		if stop==10000 and BreakFill:
+			print "breaking loop..."
 			break
 		stop+=1	
 		if event.photons.size() ==0:
@@ -251,6 +254,7 @@ stop=0
 
 for event in data:
 	if stop==10000 and BreakFill:
+		print "breaking loop..."
 		break
 	stop+=1
 	if event.photons.size() ==0:
@@ -300,9 +304,9 @@ stack.GetYaxis().SetTitle(Title[2])
 stack.GetXaxis().SetTitleOffset(1)
 stack.GetYaxis().SetTitleOffset(1)
 
-stack.Draw("")
 stack.SetMinimum( MinMax[3] )
 stack.SetMaximum( MinMax[4] )
+stack.Draw("")
 testHis.SetMinimum( MinMax[3] )
 testHis.SetMaximum( MinMax[4] )
 testHis.Draw("samePE")
@@ -310,6 +314,9 @@ L.Draw()
 ROOT.gPad.Update()
 ROOT.gPad.RedrawAxis()
 
+if not BreakFill:
+	ROOT.gPad.SaveAs(homePath+"Stack"+plotvar+".pdf")
+	
 	
 if BreakFill and PrintBreak:
 	ROOT.gPad.SaveAs(homePath+"Stack"+plotvar+"Break.pdf")
