@@ -163,7 +163,7 @@ HistDataHtPtWeight.SetTitle(Title[0]+" #gamma_{tight}/#gamma_{loose}")
 HistDataHtPtWeightError = ROOT.TH2F( "DataHtPtWeightError", "DataHtPtWeightError", nBinsPt, PtMin, PtMax, nBinsHt, HtMin, HtMax)
 HistDataHtPtWeightError.GetXaxis().SetTitle("P_{T}*")
 HistDataHtPtWeightError.GetYaxis().SetTitle("Ht")
-HistDataHtPtWeightError.SetTitle(Title[0]+" #sigma_{w} (stat)")
+HistDataHtPtWeightError.SetTitle(Title[0]+" #sigma_{w_{i}}/w_{i}")
 
 #to see the isolation criteria of gt and gl  
 HistIsoGT = ROOT.TH2F( "DataIsoGT", "DataIsoGT", 100, 0, 30, 100, 0, 40)
@@ -238,7 +238,7 @@ HistSimHtPtWeight.SetTitle(Title[0]+" #gamma_{tight}/#gamma_{loose} simulated da
 HistSimHtPtWeightError = ROOT.TH2F( "SimHtPtWeightError", "SimHtPtWeightError", nBinsPt, PtMin, PtMax, nBinsHt, HtMin, HtMax)
 HistSimHtPtWeightError.GetXaxis().SetTitle("P_{T}*")
 HistSimHtPtWeightError.GetYaxis().SetTitle("Ht")
-HistSimHtPtWeightError.SetTitle(Title[0]+" #sigma_{w} (stat) ")
+HistSimHtPtWeightError.SetTitle(Title[0]+" #sigma_{w_{i}}/w_{i}")
 
 HistSimIsoGT = ROOT.TH2F( "SimIsoGT", "SimIsoGT", 100, 0, 30, 100, 0, 40)
 HistSimIsoGT.SetTitle(Title[0]+" #gamma_{tight} simulated data")
@@ -371,14 +371,6 @@ for name in Names:
 			if stop==10000:
 				print "breaking loop..."
 				break
-				"""
-		if status=="sim":
-			HistSimGTMulti.Fill(event.photons.size(), weight*event.weight)
-			HistSimGLMulti.Fill(event.jetphotons.size(), weight*event.weight)
-		if status=="data":
-			HistDataGTMulti.Fill(event.photons.size())
-			HistDataGLMulti.Fill(event.jetphotons.size())
-				"""
 		if event.met > 100:
 			continue # filter for controll region
 		GtCount=0 # reset number of GT and GL in the event
@@ -541,8 +533,8 @@ HistSimHtPtGT.Divide(HistSimHtPtGL)
 for ht in range(1, nBinsHt+1): # Bin numbers start at 1 first bin (1,1)
 	for pt in range(1, nBinsPt+1):
 		BinsCount+=1
-		HistSimHtPtWeightError.SetBinContent(pt, ht, HistSimHtPtGT.GetBinError(pt, ht))
-		HistDataHtPtWeightError.SetBinContent(pt, ht, HistDataHtPtGT.GetBinError(pt, ht))
+		HistSimHtPtWeightError.SetBinContent(pt, ht, (float(HistSimHtPtGT.GetBinError(pt, ht))/float(HistSimHtPtGT.GetBinContent(pt, ht))))
+		HistDataHtPtWeightError.SetBinContent(pt, ht, (float(HistDataHtPtGT.GetBinError(pt, ht))/float(HistDataHtPtGT.GetBinContent(pt, ht))))
 		
 		HistSimHtPtWeight.SetBinContent(pt, ht, HistSimHtPtGT.GetBinContent(pt, ht))
 		HistDataHtPtWeight.SetBinContent(pt, ht, HistDataHtPtGT.GetBinContent(pt, ht))
