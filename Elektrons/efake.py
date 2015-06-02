@@ -12,7 +12,7 @@ to varify the method it is used on simulated data
 
 data = ROOT.TChain("myTree") # chain for data
 # change status to recreate if you change keys in .Write() otherwise "update"
-TFileEfake = ROOT.TFile("TFileEfake.root", "update") # TFile to save histos
+TFileEfake = ROOT.TFile("TFileEfake.root", "recreate") # TFile to save histos
 
 # possible Variables:
 # Met Ht PhotonPt
@@ -23,7 +23,7 @@ PrintMaps = 0 # if set to 1 the maps will be printed
 Lint = 13771. # luminosity of the data
 Title=["13.8fb^{-1}", plotvar, "Events"] # plottitle, axislabels (X,Y) is changed afterwards depending on plotvar
 MinMax = [1.,1.,1.,1.,1.] # nBin, lowBin, highBin, Min, Max
-path ="/user/eicker/V07/"
+path ="/user/eicker/V07I/"
 IDVersion =".07_tree.root" #Version of the trees
 homePath="~/plotting/Elektrons/"
 
@@ -165,6 +165,7 @@ HistoZGammaGen = ROOT.TH1F( "", "", MinMax[0], MinMax[1], MinMax[2] )
 HistoQCDGen = ROOT.TH1F( "", "", MinMax[0], MinMax[1], MinMax[2] )
 HistoGJetsGen = ROOT.TH1F( "", "", MinMax[0], MinMax[1], MinMax[2] )
 
+
 HistoTTJetsFake = ROOT.TH1F( "", "", MinMax[0], MinMax[1], MinMax[2] )
 HistoTTGammaFake = ROOT.TH1F( "", "", MinMax[0], MinMax[1], MinMax[2] )
 HistoWJetsFake = ROOT.TH1F( "", "", MinMax[0], MinMax[1], MinMax[2] )
@@ -172,6 +173,8 @@ HistoWGammaFake = ROOT.TH1F( "", "", MinMax[0], MinMax[1], MinMax[2] )
 HistoZGammaFake = ROOT.TH1F( "", "", MinMax[0], MinMax[1], MinMax[2] )
 HistoQCDFake = ROOT.TH1F( "", "", MinMax[0], MinMax[1], MinMax[2] )
 HistoGJetsFake = ROOT.TH1F( "", "", MinMax[0], MinMax[1], MinMax[2] )
+
+
 
 Histos = [[HistoTTJetsGen, HistoTTJetsFake], [HistoTTGammaGen, HistoTTGammaFake], [HistoWJetsGen, HistoWJetsFake], [HistoWGammaGen, HistoWGammaFake], [HistoZGammaGen, HistoZGammaFake], [HistoQCDGen, HistoQCDFake], [HistoGJetsGen, HistoGJetsFake]]
 
@@ -190,13 +193,13 @@ for name in Names: # loop over names
 		continue # filter simulated data
 	print "looping over: "+path+name+IDVersion
 
-	if name == "TTJets_V03":
+	if name == "TTJets_V03": # method has to work here TTJets is EW
 		i=0
 		print "filling in "+str(Histos[i][0])+" und "+str(Histos[i][1])
 	if name == "TTGamma_V03":
 		i=1
 		print "filling in "+str(Histos[i][0])+" und "+str(Histos[i][1])
-	if name == "WJets_250_300_V03" or name == "WJets_300_400_V03" or name == "WJets_400_inf_V03":
+	if name == "WJets_250_300_V03" or name == "WJets_300_400_V03" or name == "WJets_400_inf_V03": # same for WJets (EW)
 		i=2
 		print "filling in "+str(Histos[i][0])+" und "+str(Histos[i][1])
 	if name == "WGamma_130_inf_V03" or name == "WGamma_50_130_V03":
@@ -228,6 +231,8 @@ for name in Names: # loop over names
 				HistSimData.Fill( event.ht, weight*event.weight )
 			elif plotvar=="Met":
 				HistSimData.Fill( event.met, weight*event.weight )
+
+				
 			if event.photons[0].genElectron:
 				if plotvar=="PhotonPt":
 					HistSimGen.Fill( event.photons[0].pt, weight*event.weight )
