@@ -1,6 +1,7 @@
 import ROOT
 import sys
 from treeFunctions import *
+from SignalScan import isSignal
 ROOT.gSystem.Load("libTreeObjects.so")
 ROOT.TH1.SetDefaultSumw2()
 e=2.7182818284590452353602874713526624977572470937
@@ -11,20 +12,19 @@ to varify the method it is used on simulated data
 """
 
 data = ROOT.TChain("myTree") # chain for data
-# change status to recreate if you change keys in .Write() otherwise "update"
-TFileEfake = ROOT.TFile("TFileEfake.root", "recreate") # TFile to save histos
+
 
 # possible Variables:
 # Met Ht PhotonPt
 plotvar="PhotonPt" # set plotvar
-LoopData = 0 # if set to 1 program will loop over simulation AND Data
+LoopData = 1 # if set to 1 program will loop over simulation AND Data
 BreakFill = 0 # if set to 1 the loop will break after 10000 Entries
 PrintMaps = 0 # if set to 1 the maps will be printed
 Lint = 13771. # luminosity of the data
 Title=["13.8fb^{-1}", plotvar, "Events"] # plottitle, axislabels (X,Y) is changed afterwards depending on plotvar
 MinMax = [1.,1.,1.,1.,1.] # nBin, lowBin, highBin, Min, Max
-path ="/user/eicker/V07I/"
-IDVersion =".07_tree.root" #Version of the trees
+path ="/user/eicker/08/"
+IDVersion =".08_tree.root" #Version of the trees
 homePath="~/plotting/Elektrons/"
 
 
@@ -35,15 +35,31 @@ if len(sys.argv)>1:
 		if sys.argv[1]=="Met" or sys.argv[1]=="Ht" or sys.argv[1]=="PhotonPt":
 			plotvar=sys.argv[1]
 			print "set plotvar = "+sys.argv[1]
+			sys.exit("need an argument for creating the TFile!")
 	if len(sys.argv)==3:
 		print "found arguments: "+sys.argv[1]+" and "+sys.argv[2]
 		if sys.argv[1]=="Met" or sys.argv[1]=="Ht" or sys.argv[1]=="PhotonPt":
 			plotvar=sys.argv[1]
 			BreakFill=int(sys.argv[2])
 			print "set plotvar = "+sys.argv[1]+" and BreakFill was set to "+sys.argv[2]
+			sys.exit("need an argument for creating the TFile!")
+	if len(sys.argv)==4:
+		print "found arguments: "+sys.argv[1]+" and "+sys.argv[2]+" and "+sys.argv[3]
+		if sys.argv[1]=="Met" or sys.argv[1]=="Ht" or sys.argv[1]=="PhotonPt":
+			plotvar=sys.argv[1]
+			BreakFill=int(sys.argv[2])
+			print "creating TFile with "+sys.argv[3]
+			print "set plotvar = "+sys.argv[1]+" and BreakFill was set to "+sys.argv[2]
+else:
+	sys.exit("need an argument for creating the TFile!")
 		
 
-
+if sys.argv[3]=="recreate":
+	TFileEfake = ROOT.TFile(homePath+"TFileEfake.root", "recreate") # TFile to save histos
+elif sys.argv[3]=="update":
+	TFileEfake = ROOT.TFile(homePath+"TFileEfake.root", "update") # TFile to save histos
+else:
+	sys.exit("need a valid argument for creating the TFile!")
 
 print "plotting against "+plotvar
 print "Programm is:"
@@ -68,7 +84,7 @@ if plotvar == "PhotonPt":
 	MinMax = [30,145,1900,0.01,1000000]
 elif plotvar == "Met":
 	Title[1]="E_{T}^{miss}(GeV)"
-	MinMax = [15,0,800,0.01,1000000]
+	MinMax = [18,0,900,0.01,1000000]
 elif plotvar == "Ht":
 	Title[1]="Ht(GeV)"
 	MinMax = [25,0,1800,0.1,100000000]
@@ -138,7 +154,7 @@ if LoopData:
 			print "breaking loop..."
 			break
 		stop+=1
-		if event.photons.size()>0:
+		if isSignal(event)=="GT":
 			if plotvar=="PhotonPt":
 				HistData.Fill( event.photons[0].pt, weight )
 			elif plotvar=="Ht":
@@ -224,7 +240,7 @@ for name in Names: # loop over names
 			print "breaking loop..."
 			break
 		stop+=1
-		if event.photons.size()>0:
+		if isSignal(event)=="GT":
 			if plotvar=="PhotonPt":
 				HistSimData.Fill( event.photons[0].pt, weight*event.weight )
 			elif plotvar=="Ht":
@@ -290,7 +306,7 @@ for i,hist in enumerate(Histos):
 	hist[1].GetYaxis().SetTitleOffset(1)
 
 	TempClone = hist[1].Clone("TempClone")
-	for i2 in range(0, MinMax[0]):
+	for i2 in range(1, MinMax[0]+1):
 		TempClone.SetBinError(i2,0.11*TempClone.GetBinContent(i2))
 
 	TempClone.SetFillColor(4)
@@ -321,7 +337,7 @@ HistSimFake.SetLineWidth(1)
 HistSimFake.SetMarkerSize(0)
 
 HistSimFakeClone = HistSimFake.Clone("HistSimFakeClone")
-for i in range(0, MinMax[0]):
+for i in range(1, MinMax[0]+1):
 	HistSimFakeClone.SetBinError(i,0.11*HistSimFakeClone.GetBinContent(i))
 
 HistSimFake.SetTitle(Title[0])
@@ -336,17 +352,25 @@ L.AddEntry(HistSimFakeClone, "systematic Error", "f")
 
 HistSimFakeClone.SetFillColor(4)
 HistSimFakeClone.SetLineColor(4)
-HistSimFakeClone.SetFillStyle(3004)
+HistSimFakeClone.SetFillStyle(3254)
 
 HistSimGen.SetLineWidth(1)
 
-HistSimFake.Draw("Ehist")
-HistSimFakeClone.Draw("sameE2")
-HistSimFakeClone.Draw("same")
-HistSimGen.Draw("samePEX0")
+HistSimFakeClone.Draw("E2")
+HistSimFake.Draw("same Ehist")
+HistSimGen.Draw("same PEX0")
 L.Draw()
 ROOT.gPad.Update()
 ROOT.gPad.RedrawAxis()
 ROOT.gPad.SaveAs(homePath+plotvar+"/"+plotvar+"EFakes.pdf")
 HistSimGen.Write(plotvar+"SimGen")
 HistSimFake.Write(plotvar+"SimFake")
+HistSimFakeClone.Write(plotvar+"SimFakeSys")
+
+
+HistFakeDataClone = HistFakeData.Clone("HistFakeDataClone")
+for i in range(1, MinMax[0]+1):
+	HistFakeDataClone.SetBinError(i,0.11*HistFakeDataClone.GetBinContent(i))
+
+HistFakeData.Write(plotvar+"DataFake")
+HistFakeDataClone.Write(plotvar+"DataFakeSys")

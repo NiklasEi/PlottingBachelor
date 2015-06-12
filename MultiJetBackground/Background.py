@@ -1,9 +1,9 @@
 import ROOT
 import sys
 from treeFunctions import *
+from SignalScan import isSignal
 ROOT.gSystem.Load("libTreeObjects.so")
 ROOT.TH1.SetDefaultSumw2()
-#e=2.7182818284590452353602874713526624977572470937
 
 
 
@@ -18,8 +18,6 @@ GLJetMultiRatioSim = TFileJetScale.Get("SimGLMulti")
 
 
 
-# change status to recreate if you change keys in .Write() otherwise "update"
-TFileBackground = ROOT.TFile("TFileBackground.root", "recreate")
 
 """
 this program aims to find weights for GammaLoose (GL) to predict their
@@ -30,9 +28,6 @@ To be able to varify the method it is used on simulated data.
 (QCD and GJet samples)
 """
 
-
-simulated = ROOT.TChain("myTree")
-data = ROOT.TChain("myTree")
 
 Styles.tdrStyle() # set Style for 1D histos
 Canvas1D = ROOT.TCanvas ("canvas1D", "canvas1D")
@@ -56,6 +51,8 @@ path ="/user/eicker/08/"
 IDVersion =".08_tree.root" #Version of the trees
 homePath="~/plotting/MultiJetBackground/"
 
+
+TFileBackground = ROOT.TFile(homePath+"TFileBackgroundPtJetMulti.root", "recreate")
 
 if len(sys.argv)>1:
 	if len(sys.argv)==2:
@@ -117,54 +114,54 @@ if PrintMaps:
 
 L = ROOT.TLegend(.6,.75,.9,.9)
 
-nBinsHt = 10 # set number of Bins in Ht for 2D Plots
-nBinsPt = 10 # set number of Bins in Pt for 2D Plots
+nBinsJet = 13 # set number of Bins in Ht for 2D Plots
+nBinsPt = 15 # set number of Bins in Pt for 2D Plots
 PtMin = 175
 PtMax = 1900
-HtMin = 0
-HtMax = 1900
+JetMin = 0
+JetMax = 13
 
 """
 									Histograms for Data
 """
 #Hist for GT objects binned in Ht and PhotonPt* in controll region
-HistDataHtPtGT = ROOT.TH2F( "DataHtPtGT", "DataHtPtGT", nBinsPt, PtMin, PtMax, 13 , 0., 13)
+HistDataHtPtGT = ROOT.TH2F( "DataHtPtGT", "DataHtPtGT", nBinsPt, PtMin, PtMax, nBinsJet , JetMin, JetMax)
 HistDataHtPtGT.SetTitle(Title[0]+" #gamma_{tight}, E_{T}^{miss}<100")
 HistDataHtPtGT.GetXaxis().SetTitle("P_{T}*")
 HistDataHtPtGT.GetYaxis().SetTitle("Ht")
 
 #Hist for GL objects binned in Ht and PhotonPt* in controll region
-HistDataHtPtGL = ROOT.TH2F( "DataHtPtGL", "DataHtPtGL", nBinsPt, PtMin, PtMax, 13 , 0., 13)
+HistDataHtPtGL = ROOT.TH2F( "DataHtPtGL", "DataHtPtGL", nBinsPt, PtMin, PtMax, nBinsJet , JetMin, JetMax)
 HistDataHtPtGL.SetTitle(Title[0]+" #gamma_{loose}, E_{T}^{miss}<100")
 HistDataHtPtGL.GetXaxis().SetTitle("P_{T}*")
 HistDataHtPtGL.GetYaxis().SetTitle("Ht")
 
 #Hist for GT objects binned in Ht and PhotonPt* in signal region
-HistDataHtPtGTSignal = ROOT.TH2F( "DataHtPtGTSignal", "DataHtPtGTSignal", nBinsPt, PtMin, PtMax, nBinsHt, HtMin, HtMax)
+HistDataHtPtGTSignal = ROOT.TH2F( "DataHtPtGTSignal", "DataHtPtGTSignal", nBinsPt, PtMin, PtMax, nBinsJet, JetMin, JetMax)
 HistDataHtPtGTSignal.SetTitle(Title[0]+" #gamma_{tight}, E_{T}^{miss}>100")
 HistDataHtPtGTSignal.GetXaxis().SetTitle("P_{T}*")
 HistDataHtPtGTSignal.GetYaxis().SetTitle("Ht")
 
 #Hist for GL objects binned in Ht and PhotonPt* in signal region
-HistDataHtPtGLSignal = ROOT.TH2F( "DataHtPtGLSignal", "DataHtPtGLSignal", nBinsPt, PtMin, PtMax, nBinsHt, HtMin, HtMax)
+HistDataHtPtGLSignal = ROOT.TH2F( "DataHtPtGLSignal", "DataHtPtGLSignal", nBinsPt, PtMin, PtMax, nBinsJet, JetMin, JetMax)
 HistDataHtPtGLSignal.SetTitle(Title[0]+" #gamma_{loose}, E_{T}^{miss}>100")
 HistDataHtPtGLSignal.GetXaxis().SetTitle("P_{T}*")
 HistDataHtPtGLSignal.GetYaxis().SetTitle("Ht")
 
 #Hist for weight binned like HistDataHtPtGT and HistDataHtPtGL. Weight is GT/GL in every bin
-HistDataHtPtWeight = ROOT.TH2F( "DataHtPtWeight", "DataHtPtWeight", nBinsPt, PtMin, PtMax, 13 , 0., 13)
+HistDataHtPtWeight = ROOT.TH2F( "DataHtPtWeight", "DataHtPtWeight", nBinsPt, PtMin, PtMax, nBinsJet , JetMin, JetMax)
 HistDataHtPtWeight.GetXaxis().SetTitle("P_{T}*")
 HistDataHtPtWeight.GetYaxis().SetTitle("Ht")
 HistDataHtPtWeight.SetTitle(Title[0]+" #gamma_{tight}/#gamma_{loose}")
 
 #Error on weight
-HistDataHtPtWeightError = ROOT.TH2F( "DataHtPtWeightError", "DataHtPtWeightError", nBinsPt, PtMin, PtMax, 13 , 0., 13)
+HistDataHtPtWeightError = ROOT.TH2F( "DataHtPtWeightError", "DataHtPtWeightError", nBinsPt, PtMin, PtMax, nBinsJet , JetMin, JetMax)
 HistDataHtPtWeightError.GetXaxis().SetTitle("P_{T}*")
 HistDataHtPtWeightError.GetYaxis().SetTitle("Ht")
 HistDataHtPtWeightError.SetTitle(Title[0]+" #sigma_{w_{i}}/w_{i}")
 
 #Events with weight==0 (bevor set to mean)
-HistDataHtPtWeightZeroEvents = ROOT.TH2F( "DataHtPtWeightZeroEvents", "DataHtPtWeightZeroEvents", nBinsPt, PtMin, PtMax, nBinsHt, HtMin, HtMax)
+HistDataHtPtWeightZeroEvents = ROOT.TH2F( "DataHtPtWeightZeroEvents", "DataHtPtWeightZeroEvents", nBinsPt, PtMin, PtMax, nBinsJet, JetMin, JetMax)
 HistDataHtPtWeightZeroEvents.GetXaxis().SetTitle("P_{T}*")
 HistDataHtPtWeightZeroEvents.GetYaxis().SetTitle("Ht")
 HistDataHtPtWeightZeroEvents.SetTitle(Title[0]+" Events with w_{i}=0")
@@ -181,22 +178,52 @@ HistIsoGL.GetXaxis().SetTitle("I_{#pm}")
 HistIsoGL.GetYaxis().SetTitle("I_{0}")
 
 # Background prediction for data estimated with weights plottet with met
-HistDataBackgroundPredictionMet = ROOT.TH1F( "DataBackgroundPredictionMet", "DataBackgroundPredictionMet", 30, 0, 900 )
+HistDataBackgroundPredictionMet = ROOT.TH1F( "DataBackgroundPredictionMet", "DataBackgroundPredictionMet", 18, 0, 900 )
 HistDataBackgroundPredictionMet.SetTitle(Title[0])
 HistDataBackgroundPredictionMet.GetXaxis().SetTitle("E_{T}^{miss}(GeV)")
 HistDataBackgroundPredictionMet.GetYaxis().SetTitle("Events")
 
+HistDataBackgroundPredictionMetSys = HistDataBackgroundPredictionMet.Clone("HistDataBackgroundPredictionMetSys")
+
 # Background prediction for data estimated with weights plottet with Ht
-HistDataBackgroundPredictionHt = ROOT.TH1F( "DataBackgroundPredictionHt", "DataBackgroundPredictionHt", 50, 0, 1400 )
+HistDataBackgroundPredictionHt = ROOT.TH1F( "DataBackgroundPredictionHt", "DataBackgroundPredictionHt", 25, 0, 1800 )
 HistDataBackgroundPredictionHt.SetTitle(Title[0])
 HistDataBackgroundPredictionHt.GetXaxis().SetTitle("Ht(GeV)")
 HistDataBackgroundPredictionHt.GetYaxis().SetTitle("Events")
 
+HistDataBackgroundPredictionHtSys = HistDataBackgroundPredictionHt.Clone("HistDataBackgroundPredictionHtSys")
+
 # Background prediction for data estimated with weights plottet with Pt*
-HistDataBackgroundPredictionPtStar = ROOT.TH1F( "DataBackgroundPredictionPtStar", "DataBackgroundPredictionPtStar", 50, 0, 1400 )
+HistDataBackgroundPredictionPtStar = ROOT.TH1F( "DataBackgroundPredictionPtStar", "DataBackgroundPredictionPtStar", 30, 145, 1900 )
 HistDataBackgroundPredictionPtStar.SetTitle(Title[0])
 HistDataBackgroundPredictionPtStar.GetXaxis().SetTitle("P_{T}*(GeV)")
 HistDataBackgroundPredictionPtStar.GetYaxis().SetTitle("Events")
+
+HistDataBackgroundPredictionPtStarSys = HistDataBackgroundPredictionPtStar.Clone("HistDataBackgroundPredictionPtStarSys")
+
+# Background prediction for data estimated with weights plottet with met in control region
+HistDataBackgroundCPredictionMet = ROOT.TH1F( "DataBackgroundCPredictionMet", "DataBackgroundCPredictionMet", 18, 0, 900 )
+HistDataBackgroundCPredictionMet.SetTitle(Title[0]+", E_{T}^{miss}<100")
+HistDataBackgroundCPredictionMet.GetXaxis().SetTitle("E_{T}^{miss}(GeV)")
+HistDataBackgroundCPredictionMet.GetYaxis().SetTitle("Events")
+
+HistDataBackgroundCPredictionMetSys = HistDataBackgroundCPredictionMet.Clone("HistDataBackgroundCPredictionMetSys")
+
+# Background prediction for data estimated with weights plottet with Ht in control region
+HistDataBackgroundCPredictionHt = ROOT.TH1F( "DataBackgroundCPredictionHt", "DataBackgroundCPredictionHt", 25, 0, 1800 )
+HistDataBackgroundCPredictionHt.SetTitle(Title[0]+", E_{T}^{miss}<100")
+HistDataBackgroundCPredictionHt.GetXaxis().SetTitle("Ht(GeV)")
+HistDataBackgroundCPredictionHt.GetYaxis().SetTitle("Events")
+
+HistDataBackgroundCPredictionHtSys = HistDataBackgroundCPredictionHt.Clone("HistDataBackgroundCPredictionHtSys")
+
+# Background prediction for data estimated with weights plottet with Pt* in control region
+HistDataBackgroundCPredictionPtStar = ROOT.TH1F( "DataBackgroundCPredictionPtStar", "DataBackgroundCPredictionPtStar", 30, 145, 1900 )
+HistDataBackgroundCPredictionPtStar.SetTitle(Title[0]+", E_{T}^{miss}<100")
+HistDataBackgroundCPredictionPtStar.GetXaxis().SetTitle("P_{T}*(GeV)")
+HistDataBackgroundCPredictionPtStar.GetYaxis().SetTitle("Events")
+
+HistDataBackgroundCPredictionPtStarSys = HistDataBackgroundCPredictionPtStar.Clone("HistDataBackgroundCPredictionPtStarSys")
 
 # GT Jet multi for data in controll region 
 HistDataGTMulti = ROOT.TH1F("DataGTMulti", "DataGTMulti", 12, -0.5, 11.5)
@@ -233,43 +260,43 @@ GLData = [0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]
 
 
 #hist for GT binned in pt ht with weights in controll region
-HistSimHtPtGT = ROOT.TH2F( "SimHtPtGT", "SimHtPtGT", nBinsPt, PtMin, PtMax, 13 , 0., 13)
+HistSimHtPtGT = ROOT.TH2F( "SimHtPtGT", "SimHtPtGT", nBinsPt, PtMin, PtMax, nBinsJet , JetMin, JetMax)
 HistSimHtPtGT.SetTitle(Title[0]+" #gamma_{tight} simulated data, E_{T}^{miss}<100")
 HistSimHtPtGT.GetXaxis().SetTitle("P_{T}*")
 HistSimHtPtGT.GetYaxis().SetTitle("Ht")
 
 #hist for GL binned in pt ht with weights in controll region
-HistSimHtPtGL = ROOT.TH2F( "SimHtPtGL", "SimHtPtGL", nBinsPt, PtMin, PtMax, 13 , 0., 13)
+HistSimHtPtGL = ROOT.TH2F( "SimHtPtGL", "SimHtPtGL", nBinsPt, PtMin, PtMax, nBinsJet , JetMin, JetMax)
 HistSimHtPtGL.SetTitle(Title[0]+" #gamma_{loose} simulated data, E_{T}^{miss}<100")
 HistSimHtPtGL.GetXaxis().SetTitle("P_{T}*")
 HistSimHtPtGL.GetYaxis().SetTitle("Ht")
 
 #Hist for GT objects binned in Ht and PhotonPt* in signal region
-HistSimHtPtGTSignal = ROOT.TH2F( "SimHtPtGTSignal", "SimHtPtGTSignal", nBinsPt, PtMin, PtMax, nBinsHt, HtMin, HtMax)
+HistSimHtPtGTSignal = ROOT.TH2F( "SimHtPtGTSignal", "SimHtPtGTSignal", nBinsPt, PtMin, PtMax, nBinsJet, JetMin, JetMax)
 HistSimHtPtGTSignal.SetTitle(Title[0]+" #gamma_{tight}, E_{T}^{miss}>100")
 HistSimHtPtGTSignal.GetXaxis().SetTitle("P_{T}*")
 HistSimHtPtGTSignal.GetYaxis().SetTitle("Ht")
 
 #Hist for GL objects binned in Ht and PhotonPt* in signal region
-HistSimHtPtGLSignal = ROOT.TH2F( "SimHtPtGLSignal", "SimHtPtGLSignal", nBinsPt, PtMin, PtMax, nBinsHt, HtMin, HtMax)
+HistSimHtPtGLSignal = ROOT.TH2F( "SimHtPtGLSignal", "SimHtPtGLSignal", nBinsPt, PtMin, PtMax, nBinsJet, JetMin, JetMax)
 HistSimHtPtGLSignal.SetTitle(Title[0]+" #gamma_{loose}, E_{T}^{miss}>100")
 HistSimHtPtGLSignal.GetXaxis().SetTitle("P_{T}*")
 HistSimHtPtGLSignal.GetYaxis().SetTitle("Ht")
 
-#hist for data weight (gt/gl)
-HistSimHtPtWeight = ROOT.TH2F( "SimHtPtWeight", "SimHtPtWeight", nBinsPt, PtMin, PtMax, 13 , 0., 13)
+#hist for weight (gt/gl)
+HistSimHtPtWeight = ROOT.TH2F( "SimHtPtWeight", "SimHtPtWeight", nBinsPt, PtMin, PtMax, nBinsJet , JetMin, JetMax)
 HistSimHtPtWeight.GetXaxis().SetTitle("P_{T}*")
 HistSimHtPtWeight.GetYaxis().SetTitle("Ht")
 HistSimHtPtWeight.SetTitle(Title[0]+" #gamma_{tight}/#gamma_{loose} simulated data")
 
 #weight error 
-HistSimHtPtWeightError = ROOT.TH2F( "SimHtPtWeightError", "SimHtPtWeightError", nBinsPt, PtMin, PtMax, 13 , 0., 13)
+HistSimHtPtWeightError = ROOT.TH2F( "SimHtPtWeightError", "SimHtPtWeightError", nBinsPt, PtMin, PtMax, nBinsJet , JetMin, JetMax)
 HistSimHtPtWeightError.GetXaxis().SetTitle("P_{T}*")
 HistSimHtPtWeightError.GetYaxis().SetTitle("Ht")
 HistSimHtPtWeightError.SetTitle(Title[0]+" #sigma_{w_{i}}/w_{i}")
 
 #Events with weight==0 (bevor set to mean)
-HistSimHtPtWeightZeroEvents = ROOT.TH2F( "SimHtPtWeightZeroEvents", "SimHtPtWeightZeroEvents", nBinsPt, PtMin, PtMax, nBinsHt, HtMin, HtMax)
+HistSimHtPtWeightZeroEvents = ROOT.TH2F( "SimHtPtWeightZeroEvents", "SimHtPtWeightZeroEvents", nBinsPt, PtMin, PtMax, nBinsJet, JetMin, JetMax)
 HistSimHtPtWeightZeroEvents.GetXaxis().SetTitle("P_{T}*")
 HistSimHtPtWeightZeroEvents.GetYaxis().SetTitle("Ht")
 HistSimHtPtWeightZeroEvents.SetTitle(Title[0]+" Events with w_{i}=0")
@@ -285,18 +312,20 @@ HistSimIsoGL.GetXaxis().SetTitle("I_{0}")
 HistSimIsoGL.GetYaxis().SetTitle("I_{#pm}")
 
 # prediction and Background against Met
-HistSimBackgroundPredictionMet = ROOT.TH1F( "SimBackgroundPredictionMet", "SimBackgroundPredictionMet", 15, 0, 900)
+HistSimBackgroundPredictionMet = ROOT.TH1F( "SimBackgroundPredictionMet", "SimBackgroundPredictionMet", 18, 0, 900)
 HistSimBackgroundPredictionMet.SetTitle(Title[0]+" Comparison for QCD and GJet samples")
 HistSimBackgroundPredictionMet.GetXaxis().SetTitle("E_{T}^{miss}(GeV)")
 HistSimBackgroundPredictionMet.GetYaxis().SetTitle("Events")
 
-HistSimBackgroundMet = ROOT.TH1F( "SimBackgroundMet", "SimBackgroundMet", 15, 0, 900)
+HistSimBackgroundPredictionMetSys = HistSimBackgroundPredictionMet.Clone("HistSimBackgroundPredictionMetSys")
+
+HistSimBackgroundMet = ROOT.TH1F( "SimBackgroundMet", "SimBackgroundMet", 18, 0, 900)
 HistSimBackgroundMet.SetTitle(Title[0]+" Comparison for QCD and GJet samples")
 HistSimBackgroundMet.GetXaxis().SetTitle("E_{T}^{miss}(GeV)")
 HistSimBackgroundMet.GetYaxis().SetTitle("Events")
 
 # Background no weights
-HistSimBackgroundMetNW = ROOT.TH1F( "SimBackgroundMetNW", "SimBackgroundMetNW", 15, 0, 900)
+HistSimBackgroundMetNW = ROOT.TH1F( "SimBackgroundMetNW", "SimBackgroundMetNW", 18, 0, 900)
 HistSimBackgroundMetNW.SetTitle(Title[0]+" Comparison for QCD and GJet samples")
 HistSimBackgroundMetNW.GetXaxis().SetTitle("E_{T}^{miss}(GeV)")
 HistSimBackgroundMetNW.GetYaxis().SetTitle("Events")
@@ -306,6 +335,8 @@ HistSimBackgroundPredictionHt = ROOT.TH1F( "SimBackgroundPredictionHt", "SimBack
 HistSimBackgroundPredictionHt.SetTitle(Title[0]+" Comparison for QCD and GJet samples")
 HistSimBackgroundPredictionHt.GetXaxis().SetTitle("Ht(GeV)")
 HistSimBackgroundPredictionHt.GetYaxis().SetTitle("Events")
+
+HistSimBackgroundPredictionHtSys = HistSimBackgroundPredictionHt.Clone("HistSimBackgroundPredictionHtSys")
 
 HistSimBackgroundHt = ROOT.TH1F( "SimBackgroundHt", "SimBackgroundHt", 25, 0, 1800)
 HistSimBackgroundHt.SetTitle(Title[0]+" Comparison for QCD and GJet samples")
@@ -324,6 +355,8 @@ HistSimBackgroundPredictionPhotonPt.SetTitle(Title[0]+" Comparison for QCD and G
 HistSimBackgroundPredictionPhotonPt.GetXaxis().SetTitle("P_{T}*(GeV)")
 HistSimBackgroundPredictionPhotonPt.GetYaxis().SetTitle("Events")
 
+HistSimBackgroundPredictionPhotonPtSys = HistSimBackgroundPredictionPhotonPt.Clone("HistSimBackgroundPredictionPhotonPtSys")
+
 HistSimBackgroundPhotonPt = ROOT.TH1F( "SimBackgroundPhotonPt", "SimBackgroundPhotonPt", 30, 145, 1900)
 HistSimBackgroundPhotonPt.SetTitle(Title[0]+" Comparison for QCD and GJet samples")
 HistSimBackgroundPhotonPt.GetXaxis().SetTitle("P_{T}*(GeV)")
@@ -334,6 +367,47 @@ HistSimBackgroundPhotonPtNW = ROOT.TH1F( "SimBackgroundPhotonPtNW", "SimBackgrou
 HistSimBackgroundPhotonPtNW.SetTitle(Title[0]+" Comparison for QCD and GJet samples")
 HistSimBackgroundPhotonPtNW.GetXaxis().SetTitle("P_{T}*(GeV)")
 HistSimBackgroundPhotonPtNW.GetYaxis().SetTitle("Events")
+
+# prediction and Background against Met in control region
+HistSimBackgroundCPredictionMet = ROOT.TH1F( "SimBackgroundCPredictionMet", "SimBackgroundCPredictionMet", 18, 0, 900)
+HistSimBackgroundCPredictionMet.SetTitle(Title[0]+" Comparison for QCD and GJet samples, E_{T}^{miss}<100")
+HistSimBackgroundCPredictionMet.GetXaxis().SetTitle("E_{T}^{miss}(GeV)")
+HistSimBackgroundCPredictionMet.GetYaxis().SetTitle("Events")
+
+HistSimBackgroundCPredictionMetSys = HistSimBackgroundCPredictionMet.Clone("HistSimBackgroundCPredictionMetSys")
+
+HistSimBackgroundCMet = ROOT.TH1F( "SimBackgroundCMet", "SimBackgroundCMet", 18, 0, 900)
+HistSimBackgroundCMet.SetTitle(Title[0]+" Comparison for QCD and GJet samples, E_{T}^{miss}<100")
+HistSimBackgroundCMet.GetXaxis().SetTitle("E_{T}^{miss}(GeV)")
+HistSimBackgroundCMet.GetYaxis().SetTitle("Events")
+
+HistSimBackgroundCPredictionMetNW = ROOT.TH1F( "SimBackgroundCPredictionMetNW", "SimBackgroundCPredictionMetNW", 18, 0, 900)
+
+# prediction and Background against Ht in control region
+HistSimBackgroundCPredictionHt = ROOT.TH1F( "SimBackgroundCPredictionHt", "SimBackgroundCPredictionHt", 25, 0, 1800)
+HistSimBackgroundCPredictionHt.SetTitle(Title[0]+" Comparison for QCD and GJet samples, E_{T}^{miss}<100")
+HistSimBackgroundCPredictionHt.GetXaxis().SetTitle("Ht(GeV)")
+HistSimBackgroundCPredictionHt.GetYaxis().SetTitle("Events")
+
+HistSimBackgroundCPredictionHtSys = HistSimBackgroundCPredictionHt.Clone("HistSimBackgroundCPredictionHtSys")
+
+HistSimBackgroundCHt = ROOT.TH1F( "SimBackgroundCHt", "SimBackgroundCHt", 25, 0, 1800)
+HistSimBackgroundCHt.SetTitle(Title[0]+" Comparison for QCD and GJet samples, E_{T}^{miss}<100")
+HistSimBackgroundCHt.GetXaxis().SetTitle("Ht(GeV)")
+HistSimBackgroundCHt.GetYaxis().SetTitle("Events")
+
+# prediction and Background against PhotonPt in control region
+HistSimBackgroundCPredictionPhotonPt = ROOT.TH1F( "SimBackgroundCPredictionPhotonPt", "SimBackgroundCPredictionPhotonPt", 30, 145, 1900)
+HistSimBackgroundCPredictionPhotonPt.SetTitle(Title[0]+" Comparison for QCD and GJet samples, E_{T}^{miss}<100")
+HistSimBackgroundCPredictionPhotonPt.GetXaxis().SetTitle("P_{T}*(GeV)")
+HistSimBackgroundCPredictionPhotonPt.GetYaxis().SetTitle("Events")
+
+HistSimBackgroundCPredictionPhotonPtSys = HistSimBackgroundCPredictionPhotonPt.Clone("HistSimBackgroundCPredictionPhotonPtSys")
+
+HistSimBackgroundCPhotonPt = ROOT.TH1F( "SimBackgroundCPhotonPt", "SimBackgroundCPhotonPt", 30, 145, 1900)
+HistSimBackgroundCPhotonPt.SetTitle(Title[0]+" Comparison for QCD and GJet samples, E_{T}^{miss}<100")
+HistSimBackgroundCPhotonPt.GetXaxis().SetTitle("P_{T}*(GeV)")
+HistSimBackgroundCPhotonPt.GetYaxis().SetTitle("Events")
 
 # GT Jet multi for simulated data in controll region 
 HistSimGTMulti = ROOT.TH1F("SimGTMulti", "SimGTMulti", 12, -0.5, 11.5)
@@ -367,9 +441,12 @@ GLSim = [0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]
 
 GT = [0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]
 GL = [0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]
+
 print "************** looping over controll region **********************"
 
 for name in Names:
+	#if name!="QCD_500_1000_V03" and name!="PhotonA_V04":
+	#	continue
 	print "******************************************************************"
 	print "looping over: "+path+name+IDVersion
 	stop=0
@@ -383,6 +460,11 @@ for name in Names:
 		status = "data"
 		print "status set to "+status
 	else:
+		if name != "QCD_250_500_V03" and name!="QCD_100_250_V09" and name!="QCD_500_1000_V03" and name!="QCD_1000_inf_V03" and name!="GJets_100_200_V09" and name!="GJets_200_400_V03" and name!="GJets_400_inf_V03" and name!="GJets_40_100_V09":
+			print "not QCD or GJets"
+			print "skipping..."
+			print "******************************************************************"
+			continue
 		print "identified simulated data"
 		status = "sim"
 		print "status set to "+status
@@ -406,7 +488,7 @@ for name in Names:
 				print "breaking loop..."
 				break
 		if event.met > 100:
-			continue # filter for controll region
+			continue # filter for control region
 		GtCount=0 # reset number of GT and GL in the event
 		GlCount=0
 		if event.photons.size()>0:
@@ -448,6 +530,7 @@ for name in Names:
 		else:
 			print "something went wrong here! Too much met for controll region"
 			break
+		"""
 		UseJetphoton=0
 		UsePhoton=0
 		if event.photons.size()>0 and event.jetphotons.size()>0: # if an event has gt and gl use the one with highest pt* and ignore the rest
@@ -470,11 +553,18 @@ for name in Names:
 				if (event.photons[0].ptMJet-event.jetphotons[0].ptMJet)>0.:
 					UsePhoton=1
 				else:
-					UseJetphoton=1				
+					UseJetphoton=1	
+			
+			print "event with : gt pt = "+str(event.photons[0].pt)+" gt ptMJet = "+str(event.photons[0].ptMJet)	
+			print "event with : gl pt = "+str(event.jetphotons[0].pt)+" gl ptMJet = "+str(event.jetphotons[0].ptMJet)	
+			print "stati: UsePhoton = "+str(UsePhoton)+" and UseJetphoton = "+str(UseJetphoton)	
+			print
+				
 		else:# if only gt OR gl exist both possibilities are checked
 			UsePhoton=1
 			UseJetphoton=1
-		if event.photons.size()>0 and UsePhoton==1:
+		"""
+		if isSignal(event)=="GT":
 			if status=="sim":
 				HistSimGTMulti.Fill(event.cleanjets.size(), weight*event.weight)	
 				HistSimIsoGT.Fill(event.photons[0].chargedIso, event.photons[0].neutralIso, weight*event.weight )
@@ -492,7 +582,7 @@ for name in Names:
 				if status=="data":
 					HistDataHtPtGT.Fill(event.photons[0].ptMJet, event.cleanjets.size())
 			
-		if event.jetphotons.size()>0 and UseJetphoton==1:
+		if isSignal(event)=="GL":
 			if status=="sim":
 				HistSimGLMulti.Fill(event.cleanjets.size(), weight*event.weight)	
 				HistSimIsoGL.Fill(event.jetphotons[0].chargedIso, event.jetphotons[0].neutralIso, weight*event.weight )
@@ -534,59 +624,62 @@ Canvas1.cd()#						GT histos will be overwritten by TH1.Divide
 HistDataHtPtGL.Draw("colz")
 HistDataHtPtGL.Write()
 ROOT.gPad.SaveAs(homePath+"Data/GLHtPtData.pdf")
+countDataGLControlRegion = HistDataHtPtGL.GetEntries()
+if HistDataHtPtGL.Integral()!=HistDataHtPtGL.GetEntries():
+	print "something went wrong here, weights for data should be 1!"
 
 HistDataHtPtGT.Draw("colz")
 HistDataHtPtGT.Write()
 ROOT.gPad.SaveAs(homePath+"Data/GTHtPtData.pdf")
+countDataGTControlRegion = HistDataHtPtGT.GetEntries()
 
 HistSimHtPtGL.Draw("colz")
 ROOT.gPad.SaveAs(homePath+"Sim/"+"GLHtPtSim.pdf")
 HistSimHtPtGL.Write()
+countSimGLControlRegion = HistSimHtPtGL.Integral()
 
 HistSimHtPtGT.Draw("colz")
 ROOT.gPad.SaveAs(homePath+"Sim/"+"GTHtPtSim.pdf")
 HistSimHtPtGT.Write()
+countSimGTControlRegion = HistSimHtPtGT.Integral()
+#print str(HistSimHtPtGT.Integral())+" != "+str(HistSimHtPtGT.GetEntries())
 
+print "GT(controll)/GL(controll) use it for meanweight!"
+print "Sim: Gt(control) = "+str(countSimGTControlRegion)+"    Gl(control) = "+str(countSimGLControlRegion)
+print "Data: Gt(control) = "+str(countDataGTControlRegion)+"    Gl(control) = "+str(countDataGLControlRegion)
+print "Sim: "+str(countSimGTControlRegion/countSimGLControlRegion)
+print "Data: "+str(float(countDataGTControlRegion)/float(countDataGLControlRegion))
 
-BinsCount=0		
-countData=0
-countSim=0
+meanWeightSim = countSimGTControlRegion/countSimGLControlRegion
+meanWeightData = float(countDataGTControlRegion)/float(countDataGLControlRegion)
+
+BinsCount=0	
 print "****************** setting 2D-Bincontents ************************"
 
 HistDataHtPtGT.Divide(HistDataHtPtGL)
 HistSimHtPtGT.Divide(HistSimHtPtGL)
 countWeightsSim=0.
-meanWeightSim=0.
 countWeightsData=0.
-meanWeightData=0.
 for pt in range(1, nBinsPt+1):# Bin numbers start at 1 first bin (1,1)
-	for jet in range(1, 14):
+	for jet in range(1, nBinsJet+1):
 		BinsCount+=1
-		"""
-		if ht>=pt: # alternative to count relevant bins to calculate mean weight
-			countWeightsSim+=1.
-			countWeightsData+=1.
-		"""
 		if HistSimHtPtGT.GetBinContent(pt, jet)!=0:
 			countWeightsSim+=1.
-			meanWeightSim+=HistSimHtPtGT.GetBinContent(pt, jet)
 			HistSimHtPtWeightError.SetBinContent(pt, jet, (float(HistSimHtPtGT.GetBinError(pt, jet))/float(HistSimHtPtGT.GetBinContent(pt, jet)))) # relative Error on w(i)
-		elif HistSimHtPtGT.GetBinContent(pt)==0:
+		elif HistSimHtPtGT.GetBinContent(pt, jet)==0:
 			HistSimHtPtWeightError.SetBinContent(pt, jet, 0) # relative Error on w(i)
 
 		if HistDataHtPtGT.GetBinContent(pt, jet)!=0:
 			countWeightsData+=1.
-			meanWeightData+=HistDataHtPtGT.GetBinContent(pt, jet)
 			HistDataHtPtWeightError.SetBinContent(pt, jet, (float(HistDataHtPtGT.GetBinError(pt, jet))/float(HistDataHtPtGT.GetBinContent(pt, jet))))
 		elif HistDataHtPtGT.GetBinContent(pt, jet)==0:
 			HistDataHtPtWeightError.SetBinContent(pt, jet, 0)
 		HistSimHtPtWeight.SetBinContent(pt, jet, HistSimHtPtGT.GetBinContent(pt, jet))
 		HistDataHtPtWeight.SetBinContent(pt, jet, HistDataHtPtGT.GetBinContent(pt, jet))
-meanWeightSim=(float(meanWeightSim)/float(countWeightsSim)) # calculate meanweight for empty Bins for simulation
-meanWeightData=(float(meanWeightData)/float(countWeightsData)) # same for data
-print str(BinsCount)+" of "+str(nBinsPt*13)+" Bins were looped over"
-print "Mean weight for Simulation is "+str(meanWeightSim)
-print "Mean weight for data is "+str(meanWeightData)
+
+print str(BinsCount)+" of "+str(nBinsPt*nBinsJet)+" Bins were looped over"
+print "Mean weight for Simulation is "+str(meanWeightSim)+" compare to "+str(HistSimHtPtWeight.GetMean())
+print "Mean weight for data is "+str(meanWeightData)+" compare to "+str(HistDataHtPtWeight.GetMean())
 print "*************** finished setting Bincontents *********************"
 print "******************************************************************"
 
@@ -637,8 +730,9 @@ MeanPtForMeanWeightEventsData=0.
 MeanHtForMeanWeightEventsData=0.
 
 
-
 for name in Names:
+	#if name!="QCD_500_1000_V03" and name!="PhotonA_V04":
+	#	continue
 	print "******************************************************************"
 	print "looping over: "+path+name+IDVersion
 	stop=0
@@ -652,6 +746,11 @@ for name in Names:
 		status = "data"
 		print "status set to "+status
 	else:
+		if name != "QCD_250_500_V03" and name!="QCD_100_250_V09" and name!="QCD_500_1000_V03" and name!="QCD_1000_inf_V03" and name!="GJets_100_200_V09" and name!="GJets_200_400_V03" and name!="GJets_400_inf_V03" and name!="GJets_40_100_V09":
+			print "not QCD or GJets"
+			print "skipping..."
+			print "******************************************************************"
+			continue
 		print "identified simulated data"
 		status = "sim"
 		print "status set to "+status
@@ -670,10 +769,111 @@ for name in Names:
 			if stop ==10000:
 				print "breaking loop..."
 				break
-				"""
-		if event.met<100:
+		UsePhoton=0
+		UseJetphoton=0
+
+		if event.met<100: #need these events to get prediction plots for the controll area at the end: "continue"
+			"""
+			if event.photons.size()>0 and event.jetphotons.size()>0: # if an event has gt and gl use the one with highest pt* and ignore the rest
+				if event.photons[0].ptMJet==0 and event.jetphotons[0].ptMJet==0:
+					if (event.photons[0].pt-event.jetphotons[0].pt)>0.:
+						UsePhoton=1
+					else:
+						UseJetphoton=1
+				elif event.photons[0].ptMJet==0:
+					if (event.photons[0].pt-event.jetphotons[0].ptMJet)>0.:
+						UsePhoton=1
+					else:
+						UseJetphoton=1
+				elif event.jetphotons[0].ptMJet==0:
+					if (event.photons[0].ptMJet-event.jetphotons[0].pt)>0.:
+						UsePhoton=1
+					else:
+						UseJetphoton=1
+				else:
+					if (event.photons[0].ptMJet-event.jetphotons[0].ptMJet)>0.:
+						UsePhoton=1
+					else:
+						UseJetphoton=1				
+			else:# if only gt OR gl exist both possibilities are checked
+				UsePhoton=1
+				UseJetphoton=1
+			"""
+			if isSignal(event)=="GL":
+
+				if status=="sim":
+					
+
+					if event.jetphotons[0].ptMJet==0:
+						Bin = HistSimHtPtWeight.FindFixBin(event.jetphotons[0].pt, event.cleanjets.size())
+						weightGTGL = HistSimHtPtWeight.GetBinContent(Bin)
+					else:
+						Bin = HistSimHtPtWeight.FindFixBin(event.jetphotons[0].ptMJet, event.cleanjets.size())
+						weightGTGL = HistSimHtPtWeight.GetBinContent(Bin)
+
+
+					if status=="sim":#name == "QCD_250_500_V03" or name=="QCD_100_250_V09" or name=="QCD_500_1000_V03" or name=="QCD_1000_inf_V03" or name=="GJets_100_200_V09" or name=="GJets_200_400_V03" or name=="GJets_400_inf_V03" or name=="GJets_40_100_V09":
+						if weightGTGL <=0.1:
+							weightGTGL=meanWeightSim
+							HistSimHtPtWeightError.SetBinContent(Bin, 1.)
+							"""
+							#calculate meanweight arround the empty bin
+							#if there are more then 3 filled bins arround use this weight
+							for pttemp in range(pt-1, pt+2):
+								for httemp in range(jet-1, jet+2):
+									if HistSimHtPtWeight.GetBinContent(pttemp, httemp)!=0:
+										countFilledWeightBinsSim+=1
+										meanWeightTempSim+=HistSimHtPtWeight.GetBinContent(pttemp, httemp)
+							if countFilledWeightBinsSim>3:
+								weightGTGL=(float(meanWeightTempSim)/float(countFilledWeightBinsSim))
+							"""	
+						HistSimBackgroundCPredictionMet.Fill(event.met, weight*event.weight*weightGTGL)
+						HistSimBackgroundCPredictionMetSys.Fill(event.met, weight*event.weight*weightGTGL*HistSimHtPtWeightError.GetBinContent(Bin))
+						HistSimBackgroundCPredictionMetNW.Fill(event.met, weight*event.weight)
+						HistSimBackgroundCPredictionHt.Fill(event.ht, weight*event.weight*weightGTGL)
+						HistSimBackgroundCPredictionHtSys.Fill(event.ht, weight*event.weight*weightGTGL*HistSimHtPtWeightError.GetBinContent(Bin))
+						if event.jetphotons[0].ptMJet==0.:
+							HistSimBackgroundCPredictionPhotonPt.Fill(event.jetphotons[0].pt, weight*event.weight*weightGTGL)
+							HistSimBackgroundCPredictionPhotonPtSys.Fill(event.jetphotons[0].pt, weight*event.weight*weightGTGL*HistSimHtPtWeightError.GetBinContent(Bin))
+						else:
+							HistSimBackgroundCPredictionPhotonPt.Fill(event.jetphotons[0].ptMJet, weight*event.weight*weightGTGL)
+							HistSimBackgroundCPredictionPhotonPtSys.Fill(event.jetphotons[0].ptMJet, weight*event.weight*weightGTGL*HistSimHtPtWeightError.GetBinContent(Bin))
+				if status=="data":
+
+					if event.jetphotons[0].ptMJet==0:
+						Bin = HistDataHtPtWeight.FindFixBin(event.jetphotons[0].pt, event.cleanjets.size())
+						weightGTGL = HistDataHtPtWeight.GetBinContent(Bin)
+					else:
+						Bin = HistDataHtPtWeight.FindFixBin(event.jetphotons[0].ptMJet, event.cleanjets.size())
+						weightGTGL = HistDataHtPtWeight.GetBinContent(Bin)
+
+					if weightGTGL <=0.1:
+						weightGTGL=meanWeightData
+						HistDataHtPtWeightError.SetBinContent(Bin, 1.)
+					HistDataBackgroundCPredictionMet.Fill(event.met, weightGTGL)
+					HistDataBackgroundCPredictionMetSys.Fill(event.met, weightGTGL*HistDataHtPtWeightError.GetBinContent(Bin))
+					HistDataBackgroundCPredictionHt.Fill(event.ht, weightGTGL)
+					HistDataBackgroundCPredictionHtSys.Fill(event.ht, weightGTGL*HistDataHtPtWeightError.GetBinContent(Bin))
+					if event.jetphotons[0].ptMJet==0.:
+						HistDataBackgroundCPredictionPtStar.Fill(event.jetphotons[0].pt, weightGTGL)
+						HistDataBackgroundCPredictionPtStarSys.Fill(event.jetphotons[0].pt, weightGTGL*HistDataHtPtWeightError.GetBinContent(Bin))
+					else:
+						HistDataBackgroundCPredictionPtStar.Fill(event.jetphotons[0].ptMJet, weightGTGL)
+						HistDataBackgroundCPredictionPtStarSys.Fill(event.jetphotons[0].ptMJet, weightGTGL*HistDataHtPtWeightError.GetBinContent(Bin))
+			if isSignal(event)=="GT":
+				if status=="sim":#name == "QCD_250_500_V03" or name=="QCD_100_250_V09" or name=="QCD_500_1000_V03" or name=="QCD_1000_inf_V03" or name=="GJets_100_200_V09" or name=="GJets_200_400_V03" or name=="GJets_400_inf_V03" or name=="GJets_40_100_V09":
+					HistSimBackgroundCMet.Fill(event.met, weight*event.weight)
+					HistSimBackgroundCHt.Fill(event.ht, weight*event.weight)
+					if event.photons[0].ptMJet==0:
+						HistSimBackgroundCPhotonPt.Fill(event.photons[0].pt, weight*event.weight)
+					else:
+						HistSimBackgroundCPhotonPt.Fill(event.photons[0].ptMJet, weight*event.weight)
+
 			continue
-				"""
+		if event.met<100: # double checking...
+			print "that should not be happening    ### trollolo ###"
+			continue
+		"""
 		if event.photons.size()>0 and event.jetphotons.size()>0: # if an event has gt and gl use the one with highest pt* and ignore the rest
 			if event.photons[0].ptMJet==0 and event.jetphotons[0].ptMJet==0:
 				if (event.photons[0].pt-event.jetphotons[0].pt)>0.:
@@ -698,27 +898,33 @@ for name in Names:
 		else:# if only gt OR gl exist both possibilities are checked
 			UsePhoton=1
 			UseJetphoton=1
-		if event.jetphotons.size()>0 and UseJetphoton==1:
+		"""
+		if isSignal(event)=="GL":
 			if event.jetphotons[0].ptMJet==0:
 				if status=="sim":
 					HistSimHtPtGLSignal.Fill(event.jetphotons[0].pt, event.cleanjets.size(), weight*event.weight)
 				if status=="data":
 					HistDataHtPtGLSignal.Fill(event.jetphotons[0].pt, event.cleanjets.size())
-				pt, nothing = divmod(event.jetphotons[0].pt, (float(PtMax-PtMin)/float(nBinsPt)))  # evaluate ht-pt bin event is in
 			else:
 				if status=="sim":
 					HistSimHtPtGLSignal.Fill(event.jetphotons[0].ptMJet, event.cleanjets.size(), weight*event.weight)
 				if status=="data":
 					HistDataHtPtGLSignal.Fill(event.jetphotons[0].ptMJet, event.cleanjets.size())
-				pt, nothing = divmod(event.jetphotons[0].ptMJet, (float(PtMax-PtMin)/float(nBinsPt)))
-			jet = int(event.cleanjets.size())+1
-			pt = int(pt)+1 # bin numbers start at 1
+
 			if status=="sim":
+				
+				if event.jetphotons[0].ptMJet==0:
+					Bin = HistSimHtPtWeight.FindFixBin(event.jetphotons[0].pt, event.cleanjets.size())
+					weightGTGL = HistSimHtPtWeight.GetBinContent(Bin)
+				else:
+					Bin = HistSimHtPtWeight.FindFixBin(event.jetphotons[0].ptMJet, event.cleanjets.size())
+					weightGTGL = HistSimHtPtWeight.GetBinContent(Bin)
+
 				HistSimGLMultiSignal.Fill(event.cleanjets.size(), weight*event.weight)
-				weightGTGL = HistSimHtPtWeight.GetBinContent(pt, jet)
-				if name == "QCD_250_500_V03" or name=="QCD_100_250_V09" or name=="QCD_500_1000_V03" or name=="QCD_1000_inf_V03" or name=="GJets_100_200_V09" or name=="GJets_200_400_V03" or name=="GJets_400_inf_V03" or name=="GJets_40_100_V09":
-					if weightGTGL==0.:
+				if status=="sim":#name == "QCD_250_500_V03" or name=="QCD_100_250_V09" or name=="QCD_500_1000_V03" or name=="QCD_1000_inf_V03" or name=="GJets_100_200_V09" or name=="GJets_200_400_V03" or name=="GJets_400_inf_V03" or name=="GJets_40_100_V09":
+					if weightGTGL <=0.1:
 						weightGTGL=meanWeightSim
+						HistSimHtPtWeightError.SetBinContent(Bin, 1.)
 						if event.jetphotons[0].ptMJet==0.:
 							HistSimHtPtWeightZeroEvents.Fill(event.jetphotons[0].pt, event.cleanjets.size(), weight*event.weight)
 							MeanPtForMeanWeightEventsSim+=event.jetphotons[0].pt
@@ -728,32 +934,45 @@ for name in Names:
 						MeanHtForMeanWeightEventsSim+=event.ht
 						countMeanWeightSim+=1
 						
+						"""
 						countFilledWeightBinsSim=0
 						meanWeightTempSim=0.
 						for pttemp in range(pt-1, pt+2):
-							for httemp in range(jet-1, jet+2):
-								if HistSimHtPtWeight.GetBinContent(pttemp, httemp)!=0:
+							for jettemp in range(jet-1, jet+2):
+								if HistSimHtPtWeight.GetBinContent(pttemp, jettemp)!=0:
 									countFilledWeightBinsSim+=1
-									meanWeightTempSim+=HistSimHtPtWeight.GetBinContent(pttemp, httemp)
+									meanWeightTempSim+=HistSimHtPtWeight.GetBinContent(pttemp, jettemp)
 						if countFilledWeightBinsSim>3:
 							weightGTGL=(float(meanWeightTempSim)/float(countFilledWeightBinsSim))
 							countTestNewMeanWeightSim+=1
+						"""
 					HistSimBackgroundPredictionMet.Fill(event.met, weight*event.weight*weightGTGL)
+					HistSimBackgroundPredictionMetSys.Fill(event.met, weight*event.weight*weightGTGL*HistSimHtPtWeightError.GetBinContent(Bin))
 					HistSimBackgroundMetNW.Fill(event.met, weight*event.weight)
 					HistSimBackgroundPredictionHt.Fill(event.ht, weight*event.weight*weightGTGL)
+					HistSimBackgroundPredictionHtSys.Fill(event.ht, weight*event.weight*weightGTGL*HistSimHtPtWeightError.GetBinContent(Bin))
 					HistSimBackgroundHtNW.Fill(event.ht, weight*event.weight)
 					if event.jetphotons[0].ptMJet==0.:
 						HistSimBackgroundPredictionPhotonPt.Fill(event.jetphotons[0].pt, weight*event.weight*weightGTGL)
+						HistSimBackgroundPredictionPhotonPtSys.Fill(event.jetphotons[0].pt, weight*event.weight*weightGTGL*HistSimHtPtWeightError.GetBinContent(Bin))
 						HistSimBackgroundPhotonPtNW.Fill(event.jetphotons[0].pt, weight*event.weight)
 					else:
 						HistSimBackgroundPredictionPhotonPt.Fill(event.jetphotons[0].ptMJet, weight*event.weight*weightGTGL)
+						HistSimBackgroundPredictionPhotonPtSys.Fill(event.jetphotons[0].ptMJet, weight*event.weight*weightGTGL*HistSimHtPtWeightError.GetBinContent(Bin))
 						HistSimBackgroundPhotonPtNW.Fill(event.jetphotons[0].ptMJet, weight*event.weight)
 			if status=="data":
+
+				if event.jetphotons[0].ptMJet==0:
+					Bin = HistDataHtPtWeight.FindFixBin(event.jetphotons[0].pt, event.cleanjets.size())
+					weightGTGL = HistDataHtPtWeight.GetBinContent(Bin)
+				else:
+					Bin = HistDataHtPtWeight.FindFixBin(event.jetphotons[0].ptMJet, event.cleanjets.size())
+					weightGTGL = HistDataHtPtWeight.GetBinContent(Bin)
 				HistDataGLMultiSignal.Fill(event.cleanjets.size())
-				weightGTGL = HistDataHtPtWeight.GetBinContent(pt, jet)
-				if weightGTGL ==0.:
+				if weightGTGL <=0.1:
 					countMeanWeightData+=1
 					weightGTGL=meanWeightData
+					HistDataHtPtWeightError.SetBinContent(Bin, 1.)
 					if event.jetphotons[0].ptMJet==0:
 						HistDataHtPtWeightZeroEvents.Fill(event.jetphotons[0].pt, event.cleanjets.size())
 						MeanPtForMeanWeightEventsData+=event.jetphotons[0].pt
@@ -762,12 +981,16 @@ for name in Names:
 						HistDataHtPtWeightZeroEvents.Fill(event.jetphotons[0].ptMJet, event.cleanjets.size())
 					MeanHtForMeanWeightEventsData+=event.ht
 				HistDataBackgroundPredictionMet.Fill(event.met, weightGTGL)
+				HistDataBackgroundPredictionMetSys.Fill(event.met, weightGTGL*HistDataHtPtWeightError.GetBinContent(Bin))
 				HistDataBackgroundPredictionHt.Fill(event.ht, weightGTGL)
+				HistDataBackgroundPredictionHtSys.Fill(event.ht, weightGTGL*HistDataHtPtWeightError.GetBinContent(Bin))
 				if event.jetphotons[0].ptMJet==0.:
 					HistDataBackgroundPredictionPtStar.Fill(event.jetphotons[0].pt, weightGTGL)
+					HistDataBackgroundPredictionPtStarSys.Fill(event.jetphotons[0].pt, weightGTGL*HistDataHtPtWeightError.GetBinContent(Bin))
 				else:
 					HistDataBackgroundPredictionPtStar.Fill(event.jetphotons[0].ptMJet, weightGTGL)
-		if event.photons.size()>0 and UsePhoton==1:
+					HistDataBackgroundPredictionPtStarSys.Fill(event.jetphotons[0].ptMJet, weightGTGL*HistDataHtPtWeightError.GetBinContent(Bin))
+		if isSignal(event)=="GT":
 			if status=="sim":
 				HistSimGTMultiSignal.Fill(event.cleanjets.size(), weight*event.weight)
 			if status=="data":
@@ -782,7 +1005,7 @@ for name in Names:
 					HistSimHtPtGTSignal.Fill(event.photons[0].ptMJet, event.cleanjets.size(), weight*event.weight)
 				if status=="data":
 					HistDataHtPtGTSignal.Fill(event.photons[0].ptMJet, event.cleanjets.size())
-			if name == "QCD_250_500_V03" or name=="QCD_100_250_V09" or name=="QCD_500_1000_V03" or name=="QCD_1000_inf_V03" or name=="GJets_100_200_V09" or name=="GJets_200_400_V03" or name=="GJets_400_inf_V03" or name=="GJets_40_100_V09":
+			if status=="sim":#name == "QCD_250_500_V03" or name=="QCD_100_250_V09" or name=="QCD_500_1000_V03" or name=="QCD_1000_inf_V03" or name=="GJets_100_200_V09" or name=="GJets_200_400_V03" or name=="GJets_400_inf_V03" or name=="GJets_40_100_V09":
 				HistSimBackgroundMet.Fill(event.met, weight*event.weight)
 				HistSimBackgroundHt.Fill(event.ht, weight*event.weight)
 				if event.photons[0].ptMJet==0:
@@ -791,6 +1014,8 @@ for name in Names:
 					HistSimBackgroundPhotonPt.Fill(event.photons[0].ptMJet, weight*event.weight)
 
 	print "******************************************************************"
+print "Sim: Gt(signal) = "+str(HistSimHtPtGTSignal.Integral())+"     Gl(signal) = "+str(HistSimHtPtGLSignal.Integral())
+print "Data: Gt(signal) = "+str(HistDataHtPtGTSignal.Integral())+"     Gl(signal) = "+str(HistDataHtPtGLSignal.Integral())
 if countMeanWeightSim>0:
 	MeanHtForMeanWeightEventsSim=MeanHtForMeanWeightEventsSim/float(countMeanWeightSim)
 	MeanPtForMeanWeightEventsSim=MeanPtForMeanWeightEventsSim/float(countMeanWeightSim)
@@ -803,10 +1028,134 @@ print str(countTestNewMeanWeightSim)+" out of these events now have new meanweig
 print "Data: Mean weight had to be used "+str(countMeanWeightData)+" times because messured weight was zero"
 print "it was used for events with mean values of ht = "+str(MeanHtForMeanWeightEventsData)+" and Pt* = "+str(MeanPtForMeanWeightEventsData)
 print "******************************************************************"
-print "calculate the ratios of Gt(control)/Gt(signal) and Gl(control)/Gl(signal) ratios should be equal"
-print "Simulation: "+str(float(HistSimHtPtGT.Integral())/float(HistSimHtPtGTSignal.Integral()))+" and "+str(float(HistSimHtPtGL.Integral())/float(HistSimHtPtGLSignal.Integral()))
-print "Data: "+str(float(HistDataHtPtGT.Integral())/float(HistDataHtPtGTSignal.Integral()))+" and "+str(float(HistDataHtPtGL.Integral())/float(HistDataHtPtGLSignal.Integral()))
+print "calculate the ratios of Gt(control)/Gl(control) and Gt(signal)/Gl(signal)"
+print "Simulation: "+str(float(HistSimHtPtGT.Integral())/float(HistSimHtPtGL.Integral()))+" and "+str(float(HistSimHtPtGTSignal.Integral())/float(HistSimHtPtGLSignal.Integral()))
+print "Data: "+str(float(HistDataHtPtGT.Integral())/float(HistDataHtPtGL.Integral()))+" and "+str(float(HistDataHtPtGTSignal.Integral())/float(HistDataHtPtGLSignal.Integral()))
+
+print "******************************************************************"
+print "getting systematic errors on prediction now..."
+# Bins for HistSimBackgroundCPrediction*Sys :18, 25 ,30 (met,ht.pt)
+for i in range(1, 19):
+	BinError = HistSimBackgroundCPredictionMetSys.GetBinContent(i)
+	HistSimBackgroundCPredictionMetSys.SetBinError(i, BinError)
+	BinContent = HistSimBackgroundCPredictionMet.GetBinContent(i)
+	HistSimBackgroundCPredictionMetSys.SetBinContent(i, BinContent)
+HistSimBackgroundCPredictionMetSys.SetMinimum(1)
+HistSimBackgroundCPredictionMetSys.SetMaximum(10000000)
+
+for i in range(1, 26):
+	BinError = HistSimBackgroundCPredictionHtSys.GetBinContent(i)
+	HistSimBackgroundCPredictionHtSys.SetBinError(i, BinError)
+	BinContent = HistSimBackgroundCPredictionHt.GetBinContent(i)
+	HistSimBackgroundCPredictionHtSys.SetBinContent(i, BinContent)
+HistSimBackgroundCPredictionHtSys.SetMinimum(10)
+HistSimBackgroundCPredictionHtSys.SetMaximum(1000000)
+
+for i in range(1, 31):
+	BinError = HistSimBackgroundCPredictionPhotonPtSys.GetBinContent(i)
+	HistSimBackgroundCPredictionPhotonPtSys.SetBinError(i, BinError)
+	BinContent = HistSimBackgroundCPredictionPhotonPt.GetBinContent(i)
+	HistSimBackgroundCPredictionPhotonPtSys.SetBinContent(i, BinContent)
+HistSimBackgroundCPredictionPhotonPtSys.SetMinimum(0.01)
+HistSimBackgroundCPredictionPhotonPtSys.SetMaximum(10000000)
+	
+
+# Bins for HistSimBackgroundPrediction*Sys :18, 25 ,30 (met,ht.pt)
+for i in range(1, 19):
+	BinError = HistSimBackgroundPredictionMetSys.GetBinContent(i)
+	HistSimBackgroundPredictionMetSys.SetBinError(i, BinError)
+	BinContent = HistSimBackgroundPredictionMet.GetBinContent(i)
+	HistSimBackgroundPredictionMetSys.SetBinContent(i, BinContent)
+HistSimBackgroundPredictionMetSys.SetMinimum(0.01)
+HistSimBackgroundPredictionMetSys.SetMaximum(100000)
+
+for i in range(1, 26):
+	BinError = HistSimBackgroundPredictionHtSys.GetBinContent(i)
+	HistSimBackgroundPredictionHtSys.SetBinError(i, BinError)
+	BinContent = HistSimBackgroundPredictionHt.GetBinContent(i)
+	HistSimBackgroundPredictionHtSys.SetBinContent(i, BinContent)
+HistSimBackgroundPredictionHtSys.SetMinimum(0.1)
+HistSimBackgroundPredictionHtSys.SetMaximum(100000)
+
+for i in range(1, 31):
+	BinError = HistSimBackgroundPredictionPhotonPtSys.GetBinContent(i)
+	HistSimBackgroundPredictionPhotonPtSys.SetBinError(i, BinError)
+	BinContent = HistSimBackgroundPredictionPhotonPt.GetBinContent(i)
+	HistSimBackgroundPredictionPhotonPtSys.SetBinContent(i, BinContent)
+HistSimBackgroundPredictionPhotonPtSys.SetMinimum(0.001)
+HistSimBackgroundPredictionPhotonPtSys.SetMaximum(100000)
+	
+# Bins for HistDataBackgroundCPrediction*Sys :18, 25 ,30 (met,ht.pt)
+for i in range(1, 19):
+	BinError = HistDataBackgroundCPredictionMetSys.GetBinContent(i)
+	HistDataBackgroundCPredictionMetSys.SetBinError(i, BinError)
+	BinContent = HistDataBackgroundCPredictionMet.GetBinContent(i)
+	HistDataBackgroundCPredictionMetSys.SetBinContent(i, BinContent)
+HistDataBackgroundCPredictionMetSys.SetMinimum(1)
+HistDataBackgroundCPredictionMetSys.SetMaximum(10000000)
+
+for i in range(1, 26):
+	BinError = HistDataBackgroundCPredictionHtSys.GetBinContent(i)
+	HistDataBackgroundCPredictionHtSys.SetBinError(i, BinError)
+	BinContent = HistDataBackgroundCPredictionHt.GetBinContent(i)
+	HistDataBackgroundCPredictionHtSys.SetBinContent(i, BinContent)
+HistDataBackgroundCPredictionHtSys.SetMinimum(10)
+HistDataBackgroundCPredictionHtSys.SetMaximum(1000000)
+
+for i in range(1, 31):
+	BinError = HistDataBackgroundCPredictionPtStarSys.GetBinContent(i)
+	HistDataBackgroundCPredictionPtStarSys.SetBinError(i, BinError)
+	BinContent = HistDataBackgroundCPredictionPtStar.GetBinContent(i)
+	HistDataBackgroundCPredictionPtStarSys.SetBinContent(i, BinContent)
+HistDataBackgroundCPredictionPtStarSys.SetMinimum(0.01)
+HistDataBackgroundCPredictionPtStarSys.SetMaximum(10000000)
+	
+# Bins for HistDataBackgroundPrediction*Sys :18, 25 ,30 (met,ht.pt)
+for i in range(1, 19):
+	BinError = HistDataBackgroundPredictionMetSys.GetBinContent(i)
+	HistDataBackgroundPredictionMetSys.SetBinError(i, BinError)
+	BinContent = HistDataBackgroundPredictionMet.GetBinContent(i)
+	HistDataBackgroundPredictionMetSys.SetBinContent(i, BinContent)
+HistDataBackgroundPredictionMetSys.SetMinimum(0.01)
+HistDataBackgroundPredictionMetSys.SetMaximum(100000)
+
+for i in range(1, 26):
+	BinError = HistDataBackgroundPredictionHtSys.GetBinContent(i)
+	HistDataBackgroundPredictionHtSys.SetBinError(i, BinError)
+	BinContent = HistDataBackgroundPredictionHt.GetBinContent(i)
+	HistDataBackgroundPredictionHtSys.SetBinContent(i, BinContent)
+HistDataBackgroundPredictionHtSys.SetMinimum(0.1)
+HistDataBackgroundPredictionHtSys.SetMaximum(100000)
+
+for i in range(1, 31):
+	BinError = HistDataBackgroundPredictionPtStarSys.GetBinContent(i)
+	HistDataBackgroundPredictionPtStarSys.SetBinError(i, BinError)
+	BinContent = HistDataBackgroundPredictionPtStar.GetBinContent(i)
+	HistDataBackgroundPredictionPtStarSys.SetBinContent(i, BinContent)
+HistDataBackgroundPredictionPtStarSys.SetMinimum(0.001)
+HistDataBackgroundPredictionPtStarSys.SetMaximum(100000)
+
+	
+
+
+
+print "******************************************************************"
+print "printing pdfs and saving histogramms to a TFile"
+
+
+
+
+
 TFileBackground.cd()
+
+
+HistDataBackgroundCPredictionPtStarSys.Write("HistDataBackgroundCPredictionPtStarSys")
+HistDataBackgroundCPredictionHtSys.Write("HistDataBackgroundCPredictionHtSys")
+HistDataBackgroundCPredictionMetSys.Write("HistDataBackgroundCPredictionMetSys")
+
+HistDataBackgroundCPredictionPtStar.Write("HistDataBackgroundCPredictionPtStar")
+HistDataBackgroundCPredictionHt.Write("HistDataBackgroundCPredictionHt")
+HistDataBackgroundCPredictionMet.Write("HistDataBackgroundCPredictionMet")
 
 ROOT.gStyle.SetOptLogz(0)
 Canvas2 = ROOT.TCanvas ("canvas2", "canvas2") # Canvas2 for weight and weightError plots (no logscale for z axis)
@@ -874,11 +1223,12 @@ HistDataGTMulti.Scale(norm)
 norm = 1./float(HistDataGTMultiSignal.Integral())
 HistDataGTMultiSignal.Scale(norm)
 HistDataGTMulti.SetLineColor(2)
+HistDataGTMulti.SetMarkerColor(2)
 HistDataGTMulti.SetTitle("#gamma_{tight} in signal and controll region")
 HistDataGTMulti.Draw()
 HistDataGTMultiSignal.Draw("same")
-LMultiGT.AddEntry(HistDataGTMulti, "normalized Jet multiplicity for E_{T}^{miss}<100GeV", "f")
-LMultiGT.AddEntry(HistDataGTMultiSignal, "normalized Jet multiplicity for E_{T}^{miss}>100GeV", "f")
+LMultiGT.AddEntry(HistDataGTMulti, "normalized Jet multiplicity for E_{T}^{miss}<100GeV", "lep")
+LMultiGT.AddEntry(HistDataGTMultiSignal, "normalized Jet multiplicity for E_{T}^{miss}>100GeV", "lep")
 LMultiGT.Draw()
 ROOT.gPad.SaveAs(homePath+"Data/JetMultiGtControllAndSignal.pdf")
 
@@ -888,11 +1238,12 @@ HistDataGLMulti.Scale(norm)
 norm = 1./float(HistDataGLMultiSignal.Integral())
 HistDataGLMultiSignal.Scale(norm)
 HistDataGLMulti.SetLineColor(2)
+HistDataGLMulti.SetMarkerColor(2)
 HistDataGLMulti.SetTitle("#gamma_{loose} in signal and controll region")
 HistDataGLMulti.Draw()
 HistDataGLMultiSignal.Draw("same")
-LMultiGL.AddEntry(HistDataGLMulti, "normalized Jet multiplicity for E_{T}^{miss}<100GeV", "f")
-LMultiGL.AddEntry(HistDataGLMultiSignal, "normalized Jet multiplicity for E_{T}^{miss}>100GeV", "f")
+LMultiGL.AddEntry(HistDataGLMulti, "normalized Jet multiplicity for E_{T}^{miss}<100GeV", "lep")
+LMultiGL.AddEntry(HistDataGLMultiSignal, "normalized Jet multiplicity for E_{T}^{miss}>100GeV", "lep")
 LMultiGL.Draw()
 ROOT.gPad.SaveAs(homePath+"Data/JetMultiGlControllAndSignal.pdf")
 
@@ -902,11 +1253,12 @@ HistDataGTMultiSignal.Scale(norm)
 norm = 1./float(HistDataGLMultiSignal.Integral())
 HistDataGLMultiSignal.Scale(norm)
 HistDataGTMultiSignal.SetLineColor(2)
+HistDataGTMultiSignal.SetMarkerColor(2)
 HistDataGTMultiSignal.SetTitle("Jet Multi for #gamma_{loose} and #gamma_{tight} in signal region")
 HistDataGTMultiSignal.Draw()
 HistDataGLMultiSignal.Draw("same")
-LMultiGLGTSignal.AddEntry(HistDataGTMultiSignal, "normalized #gamma_{tight} Jet multiplicity for E_{T}^{miss}>100GeV", "f")
-LMultiGLGTSignal.AddEntry(HistDataGLMultiSignal, "normalized #gamma_{loose} Jet multiplicity for E_{T}^{miss}>100GeV", "f")
+LMultiGLGTSignal.AddEntry(HistDataGTMultiSignal, "normalized #gamma_{tight} Jet multiplicity for E_{T}^{miss}>100GeV", "lep")
+LMultiGLGTSignal.AddEntry(HistDataGLMultiSignal, "normalized #gamma_{loose} Jet multiplicity for E_{T}^{miss}>100GeV", "lep")
 LMultiGLGTSignal.Draw()
 ROOT.gPad.SaveAs(homePath+"Data/JetMultiGlGtSignal.pdf")
 
@@ -916,11 +1268,14 @@ HistDataGTMulti.Scale(norm)
 norm = 1./float(HistDataGLMulti.Integral())
 HistDataGLMulti.Scale(norm)
 HistDataGTMulti.SetLineColor(2)
+HistDataGTMulti.SetMarkerColor(2)
+HistDataGLMulti.SetLineColor(1)
+HistDataGLMulti.SetMarkerColor(1)
 HistDataGTMulti.SetTitle("Jet Multi for #gamma_{loose} and #gamma_{tight} in control region")
 HistDataGTMulti.Draw()
 HistDataGLMulti.Draw("same")
-LMultiGLGTControl.AddEntry(HistDataGTMulti, "normalized #gamma_{tight} Jet multiplicity for E_{T}^{miss}<100GeV", "f")
-LMultiGLGTControl.AddEntry(HistDataGLMulti, "normalized #gamma_{loose} Jet multiplicity for E_{T}^{miss}<100GeV", "f")
+LMultiGLGTControl.AddEntry(HistDataGTMulti, "normalized #gamma_{tight} Jet multiplicity for E_{T}^{miss}<100GeV", "lep")
+LMultiGLGTControl.AddEntry(HistDataGLMulti, "normalized #gamma_{loose} Jet multiplicity for E_{T}^{miss}<100GeV", "lep")
 LMultiGLGTControl.Draw()
 ROOT.gPad.SaveAs(homePath+"Data/JetMultiGlGtControl.pdf")
 
@@ -942,36 +1297,54 @@ Canvas1D.cd() # for 1D histos
 # comparison plots data (compare prediction with QCD and GJet sim.)
 LMetData = ROOT.TLegend(.6,.75,.9,.9)
 HistDataBackgroundPredictionMet.SetMarkerSize(0)
-HistDataBackgroundPredictionMet.Draw("Ehist")
-HistSimBackgroundMet.Draw("samePEX0")
-LMetData.AddEntry(HistDataBackgroundPredictionMet, "Predicion for #gamma_{tight} out of data", "f")
+HistDataBackgroundPredictionMetSys.SetMarkerSize(0)
+HistDataBackgroundPredictionMetSys.SetFillColor(4)
+HistDataBackgroundPredictionMetSys.SetFillStyle(3254)
+HistDataBackgroundPredictionMetSys.Draw("E2")
+HistDataBackgroundPredictionMet.Draw("same Ehist")
+HistSimBackgroundMet.Draw("same PEX0")
+LMetData.AddEntry(HistDataBackgroundPredictionMet, "Predicion for #gamma_{tight}", "l")
 LMetData.AddEntry(HistSimBackgroundMet, "#gamma_{tight} QCD+GJets", "ep")
+LMetData.AddEntry(HistDataBackgroundPredictionMetSys, "#sigma_{sys}", "f")
 LMetData.Draw()
 ROOT.gPad.SaveAs(homePath+"Data/ComparisonDataMet.pdf")
 HistDataBackgroundPredictionMet.Write()
 HistSimBackgroundMet.Write()
+HistDataBackgroundPredictionMetSys.Write("HistDataBackgroundPredictionMetSys")
 
 LHtData = ROOT.TLegend(.6,.75,.9,.9)
 HistDataBackgroundPredictionHt.SetMarkerSize(0)
-HistDataBackgroundPredictionHt.Draw("Ehist")
+HistDataBackgroundPredictionHtSys.SetMarkerSize(0)
+HistDataBackgroundPredictionHtSys.SetFillColor(4)
+HistDataBackgroundPredictionHtSys.SetFillStyle(3254)
+HistDataBackgroundPredictionHtSys.Draw("E2")
+HistDataBackgroundPredictionHt.Draw("same Ehist")
 HistSimBackgroundHt.Draw("samePEX0")
-LHtData.AddEntry(HistDataBackgroundPredictionHt, "Predicion for #gamma_{tight} out of data", "f")
+LHtData.AddEntry(HistDataBackgroundPredictionHt, "Predicion for #gamma_{tight}", "f")
 LHtData.AddEntry(HistSimBackgroundHt, "#gamma_{tight} QCD+GJets", "ep")
+LHtData.AddEntry(HistDataBackgroundPredictionHtSys, "#sigma_{sys}", "f")
 LHtData.Draw()
 ROOT.gPad.SaveAs(homePath+"Data/ComparisonDataHt.pdf")
 HistDataBackgroundPredictionHt.Write()
 HistSimBackgroundHt.Write()
+HistDataBackgroundPredictionHtSys.Write("HistDataBackgroundPredictionHtSys")
 
 LPtData = ROOT.TLegend(.6,.75,.9,.9)
 HistDataBackgroundPredictionPtStar.SetMarkerSize(0)
-HistDataBackgroundPredictionPtStar.Draw("Ehist")
-HistSimBackgroundPhotonPt.Draw("samePEX0")
-LPtData.AddEntry(HistDataBackgroundPredictionPtStar, "Predicion for #gamma_{tight} out of data", "f")
+HistDataBackgroundPredictionPtStarSys.SetMarkerSize(0)
+HistDataBackgroundPredictionPtStarSys.SetFillColor(4)
+HistDataBackgroundPredictionPtStarSys.SetFillStyle(3254)
+HistDataBackgroundPredictionPtStarSys.Draw("E2")
+HistDataBackgroundPredictionPtStar.Draw("same Ehist")
+HistSimBackgroundPhotonPt.Draw("same PEX0")
+LPtData.AddEntry(HistDataBackgroundPredictionPtStar, "Predicion for #gamma_{tight}", "f")
 LPtData.AddEntry(HistSimBackgroundPhotonPt, "#gamma_{tight} QCD+GJets", "ep")
+LPtData.AddEntry(HistDataBackgroundPredictionPtStarSys, "#sigma_{sys}", "f")
 LPtData.Draw()
 ROOT.gPad.SaveAs(homePath+"Data/ComparisonDataPt.pdf")
 HistDataBackgroundPredictionPtStar.Write()
 HistSimBackgroundPhotonPt.Write()
+HistDataBackgroundPredictionPtStarSys.Write("HistDataBackgroundPredictionPtStarSys")
 
 # SIM Plots
 
@@ -981,47 +1354,60 @@ LMet = ROOT.TLegend(.6,.75,.9,.9)
 HistSimBackgroundMetNW.SetLineColor(2)
 HistSimBackgroundMetNW.SetMarkerSize(0)
 HistSimBackgroundPredictionMet.SetMarkerSize(0)
+HistSimBackgroundPredictionMetSys.SetMarkerSize(0)
 HistSimBackgroundPredictionMet.SetMinimum( 0.01 )
 HistSimBackgroundPredictionMet.SetMaximum( 100000000 )
 HistSimBackgroundMet.SetMinimum( 0.01 )
 HistSimBackgroundMet.SetMaximum( 100000000 )
 HistSimBackgroundMetNW.SetMinimum( 0.01 )
 HistSimBackgroundMetNW.SetMaximum( 100000000 )
-HistSimBackgroundPredictionMet.Draw("Ehist")
-HistSimBackgroundMet.Draw("samePEX0")
-HistSimBackgroundMetNW.Draw("sameEhist")
-LMet.AddEntry(HistSimBackgroundPredictionMet, "Predicion for #gamma_{tight}", "f")
-LMet.AddEntry(HistSimBackgroundMetNW, "#gamma_{loose}", "f")
+HistSimBackgroundPredictionMetSys.SetFillColor(4)
+HistSimBackgroundPredictionMetSys.SetFillStyle(3254)
+HistSimBackgroundPredictionMetSys.Draw("E2")
+HistSimBackgroundPredictionMet.Draw("same Ehist")
+HistSimBackgroundMetNW.Draw("same Ehist")
+HistSimBackgroundMet.Draw("same PEX0")
+LMet.AddEntry(HistSimBackgroundPredictionMet, "Predicion for #gamma_{tight}", "l")
+LMet.AddEntry(HistSimBackgroundMetNW, "#gamma_{loose}", "l")
 LMet.AddEntry(HistSimBackgroundMet, "#gamma_{tight}", "ep")
+LMet.AddEntry(HistSimBackgroundPredictionMetSys, "#sigma_{sys}", "f")
 LMet.Draw()
 ROOT.gPad.SaveAs(homePath+"Sim/"+"ComparisonSimMet.pdf")
 HistSimBackgroundPredictionMet.Write()
 HistSimBackgroundMet.Write()
+HistSimBackgroundPredictionMetSys.Write("HistSimBackgroundPredictionMetSys")
 
 LHt = ROOT.TLegend(.6,.75,.9,.9)
 HistSimBackgroundHtNW.SetLineColor(2)
 HistSimBackgroundHtNW.SetMarkerSize(0)
 HistSimBackgroundPredictionHt.SetMarkerSize(0)
+HistSimBackgroundPredictionHtSys.SetMarkerSize(0)
 HistSimBackgroundPredictionHt.SetMinimum( 0.01 )
 HistSimBackgroundPredictionHt.SetMaximum( 100000000 )
 HistSimBackgroundHt.SetMinimum( 0.01 )
 HistSimBackgroundHt.SetMaximum( 100000000 )
 HistSimBackgroundHtNW.SetMinimum( 0.01 )
 HistSimBackgroundHtNW.SetMaximum( 100000000 )
-HistSimBackgroundPredictionHt.Draw("Ehist")
-HistSimBackgroundHt.Draw("samePEX0")
+HistSimBackgroundPredictionHtSys.SetFillColor(4)
+HistSimBackgroundPredictionHtSys.SetFillStyle(3254)
+HistSimBackgroundPredictionHtSys.Draw("E2")
+HistSimBackgroundPredictionHt.Draw("same Ehist")
 HistSimBackgroundHtNW.Draw("sameEhist")
-LHt.AddEntry(HistSimBackgroundPredictionHt, "Predicion for #gamma_{tight}", "f")
-LHt.AddEntry(HistSimBackgroundHtNW, "#gamma_{loose}", "f")
+HistSimBackgroundHt.Draw("samePEX0")
+LHt.AddEntry(HistSimBackgroundPredictionHt, "Predicion for #gamma_{tight}", "l")
+LHt.AddEntry(HistSimBackgroundHtNW, "#gamma_{loose}", "l")
 LHt.AddEntry(HistSimBackgroundHt, "#gamma_{tight}", "ep")
+LHt.AddEntry(HistSimBackgroundPredictionHtSys, "#sigma_{sys}", "f")
 LHt.Draw()
 ROOT.gPad.SaveAs(homePath+"Sim/"+"ComparisonSimHt.pdf")
 HistSimBackgroundPredictionHt.Write()
 HistSimBackgroundHt.Write()
+HistSimBackgroundPredictionHtSys.Write("HistSimBackgroundPredictionHtSys")
 
 LPhotonPt = ROOT.TLegend(.6,.75,.9,.9)
 HistSimBackgroundPhotonPtNW.SetLineColor(2)
 HistSimBackgroundPhotonPtNW.SetMarkerSize(0)
+HistSimBackgroundPredictionPhotonPtSys.SetMarkerSize(0)
 HistSimBackgroundPredictionPhotonPt.SetMarkerSize(0)
 HistSimBackgroundPredictionPhotonPt.SetMinimum( 0.01 )
 HistSimBackgroundPredictionPhotonPt.SetMaximum( 100000000 )
@@ -1029,16 +1415,89 @@ HistSimBackgroundPhotonPt.SetMinimum( 0.01 )
 HistSimBackgroundPhotonPt.SetMaximum( 100000000 )
 HistSimBackgroundPhotonPtNW.SetMinimum( 0.01 )
 HistSimBackgroundPhotonPtNW.SetMaximum( 100000000 )
-HistSimBackgroundPredictionPhotonPt.Draw("Ehist")
-HistSimBackgroundPhotonPt.Draw("samePEX0")
+HistSimBackgroundPredictionPhotonPtSys.SetFillColor(4)
+HistSimBackgroundPredictionPhotonPtSys.SetFillStyle(3254)
+HistSimBackgroundPredictionPhotonPtSys.Draw("E2")
+HistSimBackgroundPredictionPhotonPt.Draw("same Ehist")
 HistSimBackgroundPhotonPtNW.Draw("sameEhist")
-LPhotonPt.AddEntry(HistSimBackgroundPredictionPhotonPt, "Predicion for #gamma_{tight}", "f")
-LPhotonPt.AddEntry(HistSimBackgroundPhotonPtNW, "#gamma_{loose}", "f")
+HistSimBackgroundPhotonPt.Draw("samePEX0")
+LPhotonPt.AddEntry(HistSimBackgroundPredictionPhotonPt, "Predicion for #gamma_{tight}", "l")
+LPhotonPt.AddEntry(HistSimBackgroundPhotonPtNW, "#gamma_{loose}", "l")
 LPhotonPt.AddEntry(HistSimBackgroundPhotonPt, "#gamma_{tight}", "ep")
+LPhotonPt.AddEntry(HistSimBackgroundPredictionPhotonPtSys, "#sigma_{sys}", "f")
 LPhotonPt.Draw()
 ROOT.gPad.SaveAs(homePath+"Sim/"+"ComparisonSimPt.pdf")
 HistSimBackgroundPredictionPhotonPt.Write()
 HistSimBackgroundPhotonPt.Write()
+HistSimBackgroundPredictionPhotonPtSys.Write("HistSimBackgroundPredictionPhotonPtSys")
+
+#comparison plots sim in controll region
+Canvas1D.cd() # for 1D histos
+LMetC = ROOT.TLegend(.6,.75,.9,.9)
+HistSimBackgroundCPredictionMetNW.SetLineColor(2)
+HistSimBackgroundCPredictionMetNW.SetMarkerSize(0)
+HistSimBackgroundCPredictionMetSys.SetMarkerSize(0)
+HistSimBackgroundCPredictionMet.SetMarkerSize(0)
+HistSimBackgroundCPredictionMet.SetMinimum( 0.01 )
+HistSimBackgroundCPredictionMet.SetMaximum( 100000000 )
+HistSimBackgroundCMet.SetMinimum( 0.01 )
+HistSimBackgroundCMet.SetMaximum( 100000000 )
+HistSimBackgroundCPredictionMetSys.SetFillColor(4)
+HistSimBackgroundCPredictionMetSys.SetFillStyle(3254)
+HistSimBackgroundCPredictionMetSys.Draw("E2")
+HistSimBackgroundCPredictionMet.Draw("same Ehist")
+HistSimBackgroundCPredictionMetNW.Draw("same hist")
+HistSimBackgroundCMet.Draw("same PEX0")
+LMetC.AddEntry(HistSimBackgroundCPredictionMet, "Predicion for #gamma_{tight}", "l")
+LMetC.AddEntry(HistSimBackgroundCMet, "#gamma_{tight}", "ep")
+LMetC.AddEntry(HistSimBackgroundCPredictionMetSys, "#sigma_{sys}", "f")
+LMetC.Draw()
+ROOT.gPad.SaveAs(homePath+"Sim/"+"ComparisonSimMetControllRegion.pdf")
+HistSimBackgroundCPredictionMet.Write()
+HistSimBackgroundCMet.Write()
+HistSimBackgroundCPredictionMetSys.Write("HistSimBackgroundCPredictionMetSys")
+
+LHtC = ROOT.TLegend(.6,.75,.9,.9)
+HistSimBackgroundCPredictionHtSys.SetMarkerSize(0)
+HistSimBackgroundCPredictionHt.SetMarkerSize(0)
+HistSimBackgroundCPredictionHt.SetMinimum( 0.01 )
+HistSimBackgroundCPredictionHt.SetMaximum( 100000000 )
+HistSimBackgroundCHt.SetMinimum( 0.01 )
+HistSimBackgroundCHt.SetMaximum( 100000000 )
+HistSimBackgroundCPredictionHtSys.SetFillColor(4)
+HistSimBackgroundCPredictionHtSys.SetFillStyle(3254)
+HistSimBackgroundCPredictionHtSys.Draw("E2")
+HistSimBackgroundCPredictionHt.Draw("same Ehist")
+HistSimBackgroundCHt.Draw("same PEX0")
+LHtC.AddEntry(HistSimBackgroundCPredictionHt, "Predicion for #gamma_{tight}", "l")
+LHtC.AddEntry(HistSimBackgroundCHt, "#gamma_{tight}", "ep")
+LHtC.AddEntry(HistSimBackgroundCPredictionHtSys, "#sigma_{sys}", "f")
+LHtC.Draw()
+ROOT.gPad.SaveAs(homePath+"Sim/"+"ComparisonSimHtControllRegion.pdf")
+HistSimBackgroundCPredictionHt.Write()
+HistSimBackgroundCHt.Write()
+HistSimBackgroundCPredictionHtSys.Write("HistSimBackgroundCPredictionHtSys")
+
+LPhotonPtC = ROOT.TLegend(.6,.75,.9,.9)
+HistSimBackgroundCPredictionPhotonPtSys.SetMarkerSize(0)
+HistSimBackgroundCPredictionPhotonPt.SetMarkerSize(0)
+HistSimBackgroundCPredictionPhotonPt.SetMinimum( 0.01 )
+HistSimBackgroundCPredictionPhotonPt.SetMaximum( 100000000 )
+HistSimBackgroundCPhotonPt.SetMinimum( 0.01 )
+HistSimBackgroundCPhotonPt.SetMaximum( 100000000 )
+HistSimBackgroundCPredictionPhotonPtSys.SetFillColor(4)
+HistSimBackgroundCPredictionPhotonPtSys.SetFillStyle(3254)
+HistSimBackgroundCPredictionPhotonPtSys.Draw("E2")
+HistSimBackgroundCPredictionPhotonPt.Draw("same Ehist")
+HistSimBackgroundCPhotonPt.Draw("same PEX0")
+LPhotonPtC.AddEntry(HistSimBackgroundCPredictionPhotonPt, "Predicion for #gamma_{tight}", "l")
+LPhotonPtC.AddEntry(HistSimBackgroundCPhotonPt, "#gamma_{tight}", "ep")
+LPhotonPtC.AddEntry(HistSimBackgroundCPredictionPhotonPtSys, "#sigma_{sys}", "f")
+LPhotonPtC.Draw()
+ROOT.gPad.SaveAs(homePath+"Sim/"+"ComparisonSimPtControllRegion.pdf")
+HistSimBackgroundCPredictionPhotonPt.Write()
+HistSimBackgroundCPhotonPt.Write()
+HistSimBackgroundCPredictionPhotonPtSys.Write("HistSimBackgroundCPredictionPhotonPtSys")
 
 
 HistSimGTMulti.Draw()
@@ -1066,11 +1525,12 @@ HistSimGTMulti.Scale(norm)
 norm = 1./float(HistSimGTMultiSignal.Integral())
 HistSimGTMultiSignal.Scale(norm)
 HistSimGTMulti.SetLineColor(2)
+HistSimGTMulti.SetMarkerColor(2)
 HistSimGTMulti.SetTitle("#gamma_{tight} in signal and controll region")
 HistSimGTMulti.Draw()
 HistSimGTMultiSignal.Draw("same")
-LMultiGTSim.AddEntry(HistSimGTMulti, "normalized Jet multiplicity for E_{T}^{miss}<100GeV", "f")
-LMultiGTSim.AddEntry(HistSimGTMultiSignal, "normalized Jet multiplicity for E_{T}^{miss}>100GeV", "f")
+LMultiGTSim.AddEntry(HistSimGTMulti, "normalized Jet multiplicity for E_{T}^{miss}<100GeV", "lep")
+LMultiGTSim.AddEntry(HistSimGTMultiSignal, "normalized Jet multiplicity for E_{T}^{miss}>100GeV", "lep")
 LMultiGTSim.Draw()
 ROOT.gPad.SaveAs(homePath+"Sim/JetMultiGtControllAndSignal.pdf")
 
@@ -1080,11 +1540,12 @@ HistSimGLMulti.Scale(norm)
 norm = 1./float(HistSimGLMultiSignal.Integral())
 HistSimGLMultiSignal.Scale(norm)
 HistSimGLMulti.SetLineColor(2)
+HistSimGLMulti.SetMarkerColor(2)
 HistSimGLMulti.SetTitle("#gamma_{loose} in signal and controll region")
 HistSimGLMulti.Draw()
 HistSimGLMultiSignal.Draw("same")
-LMultiGLSim.AddEntry(HistSimGLMulti, "normalized Jet multiplicity for E_{T}^{miss}<100GeV", "f")
-LMultiGLSim.AddEntry(HistSimGLMultiSignal, "normalized Jet multiplicity for E_{T}^{miss}>100GeV", "f")
+LMultiGLSim.AddEntry(HistSimGLMulti, "normalized Jet multiplicity for E_{T}^{miss}<100GeV", "lep")
+LMultiGLSim.AddEntry(HistSimGLMultiSignal, "normalized Jet multiplicity for E_{T}^{miss}>100GeV", "lep")
 LMultiGLSim.Draw()
 ROOT.gPad.SaveAs(homePath+"Sim/JetMultiGlControllAndSignal.pdf")
 
@@ -1094,11 +1555,12 @@ HistSimGTMultiSignal.Scale(norm)
 norm = 1./float(HistSimGLMultiSignal.Integral())
 HistSimGLMultiSignal.Scale(norm)
 HistSimGTMultiSignal.SetLineColor(2)
+HistSimGTMultiSignal.SetMarkerColor(2)
 HistSimGTMultiSignal.SetTitle("Jet Multi for #gamma_{loose} and #gamma_{tight} in signal region")
 HistSimGTMultiSignal.Draw()
 HistSimGLMultiSignal.Draw("same")
-LMultiGLGTSignalSim.AddEntry(HistSimGTMultiSignal, "normalized #gamma_{tight} Jet multiplicity for E_{T}^{miss}>100GeV", "f")
-LMultiGLGTSignalSim.AddEntry(HistSimGLMultiSignal, "normalized #gamma_{loose} Jet multiplicity for E_{T}^{miss}>100GeV", "f")
+LMultiGLGTSignalSim.AddEntry(HistSimGTMultiSignal, "normalized #gamma_{tight} Jet multiplicity for E_{T}^{miss}>100GeV", "lep")
+LMultiGLGTSignalSim.AddEntry(HistSimGLMultiSignal, "normalized #gamma_{loose} Jet multiplicity for E_{T}^{miss}>100GeV", "lep")
 LMultiGLGTSignalSim.Draw()
 ROOT.gPad.SaveAs(homePath+"Sim/JetMultiGlGtSignal.pdf")
 
@@ -1109,11 +1571,13 @@ norm = 1./float(HistSimGLMulti.Integral())
 HistSimGLMulti.Scale(norm)
 HistSimGTMulti.SetLineColor(2)
 HistSimGLMulti.SetLineColor(1)
+HistSimGTMulti.SetMarkerColor(2)
+HistSimGLMulti.SetMarkerColor(1)
 HistSimGTMulti.SetTitle("Jet Multi for #gamma_{loose} and #gamma_{tight} in control region")
 HistSimGLMulti.Draw()
 HistSimGTMulti.Draw("same")
-LMultiGLGTControlSim.AddEntry(HistSimGTMulti, "normalized #gamma_{tight} Jet multiplicity for E_{T}^{miss}<100GeV", "f")
-LMultiGLGTControlSim.AddEntry(HistSimGLMulti, "normalized #gamma_{loose} Jet multiplicity for E_{T}^{miss}<100GeV", "f")
+LMultiGLGTControlSim.AddEntry(HistSimGTMulti, "normalized #gamma_{tight} Jet multiplicity for E_{T}^{miss}<100GeV", "lep")
+LMultiGLGTControlSim.AddEntry(HistSimGLMulti, "normalized #gamma_{loose} Jet multiplicity for E_{T}^{miss}<100GeV", "lep")
 LMultiGLGTControlSim.Draw()
 ROOT.gPad.SaveAs(homePath+"Sim/JetMultiGlGtControl.pdf")
 
