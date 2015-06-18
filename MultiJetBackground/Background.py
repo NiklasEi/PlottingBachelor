@@ -534,17 +534,17 @@ for name in Names:
 		UseJetphoton=0
 		UsePhoton=0
 		if event.photons.size()>0 and event.jetphotons.size()>0: # if an event has gt and gl use the one with highest pt* and ignore the rest
-			if event.photons[0].ptMJet==0 and event.jetphotons[0].ptMJet==0:
+			if event.photons[0].ptMJet<=0.1 and event.jetphotons[0].ptMJet<=0.1:
 				if (event.photons[0].pt-event.jetphotons[0].pt)>0.:
 					UsePhoton=1
 				else:
 					UseJetphoton=1
-			elif event.photons[0].ptMJet==0:
+			elif event.photons[0].ptMJet<=0.1:
 				if (event.photons[0].pt-event.jetphotons[0].ptMJet)>0.:
 					UsePhoton=1
 				else:
 					UseJetphoton=1
-			elif event.jetphotons[0].ptMJet==0:
+			elif event.jetphotons[0].ptMJet<=0.1:
 				if (event.photons[0].ptMJet-event.jetphotons[0].pt)>0.:
 					UsePhoton=1
 				else:
@@ -571,7 +571,7 @@ for name in Names:
 			elif status=="data":
 				HistDataGTMulti.Fill(event.cleanjets.size())
 				HistIsoGT.Fill(event.photons[0].chargedIso, event.photons[0].neutralIso)
-			if event.photons[0].ptMJet==0:
+			if event.photons[0].ptMJet<=0.1:
 				if status=="sim":
 					HistSimHtPtGT.Fill(event.photons[0].pt, event.cleanjets.size(), weight*event.weight)
 				if status=="data":
@@ -589,7 +589,7 @@ for name in Names:
 			if status=="data":
 				HistDataGLMulti.Fill(event.cleanjets.size())
 				HistIsoGL.Fill(event.jetphotons[0].chargedIso, event.jetphotons[0].neutralIso)
-			if event.jetphotons[0].ptMJet==0:
+			if event.jetphotons[0].ptMJet<=0.1:
 				if status=="sim":
 					HistSimHtPtGL.Fill(event.jetphotons[0].pt, event.cleanjets.size(), weight*event.weight)
 				if status=="data":
@@ -619,13 +619,14 @@ print "******************************************************************"
 
 
 TFileBackground.cd()#				print and save to TFile here
-Canvas1.cd()#						GT histos will be overwritten by TH1.Divide
+Canvas1.cd()#							GT histos will be overwritten by TH1.Divide
 
 HistDataHtPtGL.Draw("colz")
 HistDataHtPtGL.Write()
 ROOT.gPad.SaveAs(homePath+"Data/GLHtPtData.pdf")
 countDataGLControlRegion = HistDataHtPtGL.GetEntries()
 if HistDataHtPtGL.Integral()!=HistDataHtPtGL.GetEntries():
+	print "Integral = "+str(HistDataHtPtGL.Integral())+" and Entries = "+str(HistDataHtPtGL.GetEntries())
 	print "something went wrong here, weights for data should be 1!"
 
 HistDataHtPtGT.Draw("colz")
@@ -655,6 +656,13 @@ meanWeightData = float(countDataGTControlRegion)/float(countDataGLControlRegion)
 
 BinsCount=0	
 print "****************** setting 2D-Bincontents ************************"
+
+
+for pt in range(1, nBinsPt+1):# Bin numbers start at 1 first bin (1,1)
+	for jet in range(1, nBinsJet+1):
+		if HistSimHtPtGT.GetBinContent(pt, jet) < 0.01 and HistSimHtPtGL.GetBinContent(pt, jet) > 1:
+			print " Bin ("+str(pt)+","+str(jet)+") hat "+str(HistSimHtPtGT.GetBinContent(pt, jet))+" gt, aber "+str(HistSimHtPtGL.GetBinContent(pt, jet))+" gl"
+
 
 HistDataHtPtGT.Divide(HistDataHtPtGL)
 HistSimHtPtGT.Divide(HistSimHtPtGL)
@@ -775,17 +783,17 @@ for name in Names:
 		if event.met<100: #need these events to get prediction plots for the controll area at the end: "continue"
 			"""
 			if event.photons.size()>0 and event.jetphotons.size()>0: # if an event has gt and gl use the one with highest pt* and ignore the rest
-				if event.photons[0].ptMJet==0 and event.jetphotons[0].ptMJet==0:
+				if event.photons[0].ptMJet<=0.1 and event.jetphotons[0].ptMJet<=0.1:
 					if (event.photons[0].pt-event.jetphotons[0].pt)>0.:
 						UsePhoton=1
 					else:
 						UseJetphoton=1
-				elif event.photons[0].ptMJet==0:
+				elif event.photons[0].ptMJet<=0.1:
 					if (event.photons[0].pt-event.jetphotons[0].ptMJet)>0.:
 						UsePhoton=1
 					else:
 						UseJetphoton=1
-				elif event.jetphotons[0].ptMJet==0:
+				elif event.jetphotons[0].ptMJet<=0.1:
 					if (event.photons[0].ptMJet-event.jetphotons[0].pt)>0.:
 						UsePhoton=1
 					else:
@@ -804,7 +812,7 @@ for name in Names:
 				if status=="sim":
 					
 
-					if event.jetphotons[0].ptMJet==0:
+					if event.jetphotons[0].ptMJet<=0.1:
 						Bin = HistSimHtPtWeight.FindFixBin(event.jetphotons[0].pt, event.cleanjets.size())
 						weightGTGL = HistSimHtPtWeight.GetBinContent(Bin)
 					else:
@@ -813,7 +821,7 @@ for name in Names:
 
 
 					if status=="sim":#name == "QCD_250_500_V03" or name=="QCD_100_250_V09" or name=="QCD_500_1000_V03" or name=="QCD_1000_inf_V03" or name=="GJets_100_200_V09" or name=="GJets_200_400_V03" or name=="GJets_400_inf_V03" or name=="GJets_40_100_V09":
-						if weightGTGL <=0.1:
+						if weightGTGL <=0.01:
 							weightGTGL=meanWeightSim
 							HistSimHtPtWeightError.SetBinContent(Bin, 1.)
 							"""
@@ -832,7 +840,7 @@ for name in Names:
 						HistSimBackgroundCPredictionMetNW.Fill(event.met, weight*event.weight)
 						HistSimBackgroundCPredictionHt.Fill(event.ht, weight*event.weight*weightGTGL)
 						HistSimBackgroundCPredictionHtSys.Fill(event.ht, weight*event.weight*weightGTGL*HistSimHtPtWeightError.GetBinContent(Bin))
-						if event.jetphotons[0].ptMJet==0.:
+						if event.jetphotons[0].ptMJet<=0.1:
 							HistSimBackgroundCPredictionPhotonPt.Fill(event.jetphotons[0].pt, weight*event.weight*weightGTGL)
 							HistSimBackgroundCPredictionPhotonPtSys.Fill(event.jetphotons[0].pt, weight*event.weight*weightGTGL*HistSimHtPtWeightError.GetBinContent(Bin))
 						else:
@@ -840,21 +848,21 @@ for name in Names:
 							HistSimBackgroundCPredictionPhotonPtSys.Fill(event.jetphotons[0].ptMJet, weight*event.weight*weightGTGL*HistSimHtPtWeightError.GetBinContent(Bin))
 				if status=="data":
 
-					if event.jetphotons[0].ptMJet==0:
+					if event.jetphotons[0].ptMJet<=0.1:
 						Bin = HistDataHtPtWeight.FindFixBin(event.jetphotons[0].pt, event.cleanjets.size())
 						weightGTGL = HistDataHtPtWeight.GetBinContent(Bin)
 					else:
 						Bin = HistDataHtPtWeight.FindFixBin(event.jetphotons[0].ptMJet, event.cleanjets.size())
 						weightGTGL = HistDataHtPtWeight.GetBinContent(Bin)
 
-					if weightGTGL <=0.1:
+					if weightGTGL <=0.01:
 						weightGTGL=meanWeightData
 						HistDataHtPtWeightError.SetBinContent(Bin, 1.)
 					HistDataBackgroundCPredictionMet.Fill(event.met, weightGTGL)
 					HistDataBackgroundCPredictionMetSys.Fill(event.met, weightGTGL*HistDataHtPtWeightError.GetBinContent(Bin))
 					HistDataBackgroundCPredictionHt.Fill(event.ht, weightGTGL)
 					HistDataBackgroundCPredictionHtSys.Fill(event.ht, weightGTGL*HistDataHtPtWeightError.GetBinContent(Bin))
-					if event.jetphotons[0].ptMJet==0.:
+					if event.jetphotons[0].ptMJet<=0.1:
 						HistDataBackgroundCPredictionPtStar.Fill(event.jetphotons[0].pt, weightGTGL)
 						HistDataBackgroundCPredictionPtStarSys.Fill(event.jetphotons[0].pt, weightGTGL*HistDataHtPtWeightError.GetBinContent(Bin))
 					else:
@@ -864,7 +872,7 @@ for name in Names:
 				if status=="sim":#name == "QCD_250_500_V03" or name=="QCD_100_250_V09" or name=="QCD_500_1000_V03" or name=="QCD_1000_inf_V03" or name=="GJets_100_200_V09" or name=="GJets_200_400_V03" or name=="GJets_400_inf_V03" or name=="GJets_40_100_V09":
 					HistSimBackgroundCMet.Fill(event.met, weight*event.weight)
 					HistSimBackgroundCHt.Fill(event.ht, weight*event.weight)
-					if event.photons[0].ptMJet==0:
+					if event.photons[0].ptMJet<=0.1:
 						HistSimBackgroundCPhotonPt.Fill(event.photons[0].pt, weight*event.weight)
 					else:
 						HistSimBackgroundCPhotonPt.Fill(event.photons[0].ptMJet, weight*event.weight)
@@ -875,17 +883,17 @@ for name in Names:
 			continue
 		"""
 		if event.photons.size()>0 and event.jetphotons.size()>0: # if an event has gt and gl use the one with highest pt* and ignore the rest
-			if event.photons[0].ptMJet==0 and event.jetphotons[0].ptMJet==0:
+			if event.photons[0].ptMJet<=0.1 and event.jetphotons[0].ptMJet<=0.1:
 				if (event.photons[0].pt-event.jetphotons[0].pt)>0.:
 					UsePhoton=1
 				else:
 					UseJetphoton=1
-			elif event.photons[0].ptMJet==0:
+			elif event.photons[0].ptMJet<=0.1:
 				if (event.photons[0].pt-event.jetphotons[0].ptMJet)>0.:
 					UsePhoton=1
 				else:
 					UseJetphoton=1
-			elif event.jetphotons[0].ptMJet==0:
+			elif event.jetphotons[0].ptMJet<=0.1:
 				if (event.photons[0].ptMJet-event.jetphotons[0].pt)>0.:
 					UsePhoton=1
 				else:
@@ -900,7 +908,7 @@ for name in Names:
 			UseJetphoton=1
 		"""
 		if isSignal(event)=="GL":
-			if event.jetphotons[0].ptMJet==0:
+			if event.jetphotons[0].ptMJet<=0.1:
 				if status=="sim":
 					HistSimHtPtGLSignal.Fill(event.jetphotons[0].pt, event.cleanjets.size(), weight*event.weight)
 				if status=="data":
@@ -913,7 +921,7 @@ for name in Names:
 
 			if status=="sim":
 				
-				if event.jetphotons[0].ptMJet==0:
+				if event.jetphotons[0].ptMJet<=0.1:
 					Bin = HistSimHtPtWeight.FindFixBin(event.jetphotons[0].pt, event.cleanjets.size())
 					weightGTGL = HistSimHtPtWeight.GetBinContent(Bin)
 				else:
@@ -922,10 +930,10 @@ for name in Names:
 
 				HistSimGLMultiSignal.Fill(event.cleanjets.size(), weight*event.weight)
 				if status=="sim":#name == "QCD_250_500_V03" or name=="QCD_100_250_V09" or name=="QCD_500_1000_V03" or name=="QCD_1000_inf_V03" or name=="GJets_100_200_V09" or name=="GJets_200_400_V03" or name=="GJets_400_inf_V03" or name=="GJets_40_100_V09":
-					if weightGTGL <=0.1:
+					if weightGTGL <=0.01:
 						weightGTGL=meanWeightSim
 						HistSimHtPtWeightError.SetBinContent(Bin, 1.)
-						if event.jetphotons[0].ptMJet==0.:
+						if event.jetphotons[0].ptMJet<=0.1:
 							HistSimHtPtWeightZeroEvents.Fill(event.jetphotons[0].pt, event.cleanjets.size(), weight*event.weight)
 							MeanPtForMeanWeightEventsSim+=event.jetphotons[0].pt
 						else:
@@ -952,7 +960,7 @@ for name in Names:
 					HistSimBackgroundPredictionHt.Fill(event.ht, weight*event.weight*weightGTGL)
 					HistSimBackgroundPredictionHtSys.Fill(event.ht, weight*event.weight*weightGTGL*HistSimHtPtWeightError.GetBinContent(Bin))
 					HistSimBackgroundHtNW.Fill(event.ht, weight*event.weight)
-					if event.jetphotons[0].ptMJet==0.:
+					if event.jetphotons[0].ptMJet<=0.1:
 						HistSimBackgroundPredictionPhotonPt.Fill(event.jetphotons[0].pt, weight*event.weight*weightGTGL)
 						HistSimBackgroundPredictionPhotonPtSys.Fill(event.jetphotons[0].pt, weight*event.weight*weightGTGL*HistSimHtPtWeightError.GetBinContent(Bin))
 						HistSimBackgroundPhotonPtNW.Fill(event.jetphotons[0].pt, weight*event.weight)
@@ -962,18 +970,18 @@ for name in Names:
 						HistSimBackgroundPhotonPtNW.Fill(event.jetphotons[0].ptMJet, weight*event.weight)
 			if status=="data":
 
-				if event.jetphotons[0].ptMJet==0:
+				if event.jetphotons[0].ptMJet<=0.1:
 					Bin = HistDataHtPtWeight.FindFixBin(event.jetphotons[0].pt, event.cleanjets.size())
 					weightGTGL = HistDataHtPtWeight.GetBinContent(Bin)
 				else:
 					Bin = HistDataHtPtWeight.FindFixBin(event.jetphotons[0].ptMJet, event.cleanjets.size())
 					weightGTGL = HistDataHtPtWeight.GetBinContent(Bin)
 				HistDataGLMultiSignal.Fill(event.cleanjets.size())
-				if weightGTGL <=0.1:
+				if weightGTGL <=0.01:
 					countMeanWeightData+=1
 					weightGTGL=meanWeightData
 					HistDataHtPtWeightError.SetBinContent(Bin, 1.)
-					if event.jetphotons[0].ptMJet==0:
+					if event.jetphotons[0].ptMJet<=0.1:
 						HistDataHtPtWeightZeroEvents.Fill(event.jetphotons[0].pt, event.cleanjets.size())
 						MeanPtForMeanWeightEventsData+=event.jetphotons[0].pt
 					else:
@@ -984,7 +992,7 @@ for name in Names:
 				HistDataBackgroundPredictionMetSys.Fill(event.met, weightGTGL*HistDataHtPtWeightError.GetBinContent(Bin))
 				HistDataBackgroundPredictionHt.Fill(event.ht, weightGTGL)
 				HistDataBackgroundPredictionHtSys.Fill(event.ht, weightGTGL*HistDataHtPtWeightError.GetBinContent(Bin))
-				if event.jetphotons[0].ptMJet==0.:
+				if event.jetphotons[0].ptMJet<=0.1:
 					HistDataBackgroundPredictionPtStar.Fill(event.jetphotons[0].pt, weightGTGL)
 					HistDataBackgroundPredictionPtStarSys.Fill(event.jetphotons[0].pt, weightGTGL*HistDataHtPtWeightError.GetBinContent(Bin))
 				else:
@@ -995,7 +1003,7 @@ for name in Names:
 				HistSimGTMultiSignal.Fill(event.cleanjets.size(), weight*event.weight)
 			if status=="data":
 				HistDataGTMultiSignal.Fill(event.cleanjets.size(), weight*event.weight)
-			if event.photons[0].ptMJet==0:
+			if event.photons[0].ptMJet<=0.1:
 				if status=="sim":
 					HistSimHtPtGTSignal.Fill(event.photons[0].pt, event.cleanjets.size(), weight*event.weight)
 				if status=="data":
@@ -1008,7 +1016,7 @@ for name in Names:
 			if status=="sim":#name == "QCD_250_500_V03" or name=="QCD_100_250_V09" or name=="QCD_500_1000_V03" or name=="QCD_1000_inf_V03" or name=="GJets_100_200_V09" or name=="GJets_200_400_V03" or name=="GJets_400_inf_V03" or name=="GJets_40_100_V09":
 				HistSimBackgroundMet.Fill(event.met, weight*event.weight)
 				HistSimBackgroundHt.Fill(event.ht, weight*event.weight)
-				if event.photons[0].ptMJet==0:
+				if event.photons[0].ptMJet<=0.1:
 					HistSimBackgroundPhotonPt.Fill(event.photons[0].pt, weight*event.weight)
 				else:
 					HistSimBackgroundPhotonPt.Fill(event.photons[0].ptMJet, weight*event.weight)

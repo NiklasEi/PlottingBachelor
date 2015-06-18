@@ -24,7 +24,7 @@ Canvas = ROOT.TCanvas ("Canvas", "Canvas")
 plotvar="Ht" # set plotvar 
 PrintBreak=0 # if set to 1 'break pdfs' will be printed when running with BreakFill=1
 BreakFill=0 # if set to 1 the loop will break after 10000 Entries
-PrintMaps=0 # if set to 1 the maps will be printed
+PrintMaps=1 # if set to 1 the maps will be printed
 Lint = 13771. # luminosity of the data
 Title=["13.8fb^{-1}, #gamma_{tight}>0", plotvar, "Events"] # plottitle, axislabels (X,Y) is changed afterwards depending on plotvar
 MinMax = [1.,1.,1.,1.,1.] # nBin, lowBin, highBin, Min, Max
