@@ -28,8 +28,8 @@ PrintMaps=1 # if set to 1 the maps will be printed
 Lint = 13771. # luminosity of the data
 Title=["13.8fb^{-1}, #gamma_{tight}>0", plotvar, "Events"] # plottitle, axislabels (X,Y) is changed afterwards depending on plotvar
 MinMax = [1.,1.,1.,1.,1.] # nBin, lowBin, highBin, Min, Max
-path ="/user/eicker/08/"
-IDVersion =".08_tree.root" #Version of the trees
+path ="/user/eicker/10/"
+IDVersion =".10_tree.root" #Version of the trees
 homePath="~/plotting/SimulatedBackground/"
 
 
@@ -305,7 +305,7 @@ LT5wg2 = GenHist.GetEntries()/sigwg2
 
 weight = Lint/LT5wg1
 for event in T5wg1tree:		
-	if event.photons.size() ==0:
+	if isSignal(event)!="GT":
 		continue
 	if plotvar=="PhotonPt":
 		HistT5wg1.Fill( event.photons[0].pt, weight )
@@ -323,7 +323,7 @@ ROOT.gPad.SaveAs(homePath+"T5wg1"+plotvar+".pdf")
 
 weight = Lint/LT5wg2
 for event in T5wg2tree:		
-	if event.photons.size() ==0:
+	if isSignal(event)!="GT":
 		continue
 	if plotvar=="PhotonPt":
 		HistT5wg2.Fill( event.photons[0].pt, weight )
