@@ -17,14 +17,14 @@ data = ROOT.TChain("myTree") # chain for data
 # possible Variables:
 # Met Ht PhotonPt
 plotvar="PhotonPt" # set plotvar
-LoopData = 1 # if set to 1 program will loop over simulation AND Data
+LoopData = 0 # if set to 1 program will loop over simulation AND Data
 BreakFill = 0 # if set to 1 the loop will break after 10000 Entries
 PrintMaps = 0 # if set to 1 the maps will be printed
 Lint = 13771. # luminosity of the data
 Title=["13.8fb^{-1}", plotvar, "Events"] # plottitle, axislabels (X,Y) is changed afterwards depending on plotvar
 MinMax = [1.,1.,1.,1.,1.] # nBin, lowBin, highBin, Min, Max
-path ="/user/eicker/08/"
-IDVersion =".08_tree.root" #Version of the trees
+path ="/user/eicker/10/"
+IDVersion =".10_tree.root" #Version of the trees
 homePath="~/plotting/Elektrons/"
 
 
@@ -149,6 +149,7 @@ if LoopData:
 	print "********************      datachain     **************************"
 	eweight=0. # weight for elektrons faking photons
 	stop=0
+	print "weight is "+str(weight)
 	for event in data: # loop over datachain
 		if stop==10000 and BreakFill:
 			print "breaking loop..."
@@ -161,7 +162,7 @@ if LoopData:
 				HistData.Fill( event.ht, weight )
 			elif plotvar=="Met":
 				HistData.Fill( event.met, weight )
-		if event.electrons.size()>0:
+		elif isSignal(event)=="e":
 			eweight = (1.-(1.-0.00194)*(1.-pow((event.electrons[0].pt/14.1)+1.,-4.9))*(1.-0.14*pow(e,(-0.296*event.nTracksPV)))*(1.-0.000315*event.nVertex))
 			if plotvar=="PhotonPt":
 				HistFakeData.Fill( event.electrons[0].pt, eweight )
@@ -169,6 +170,8 @@ if LoopData:
 				HistFakeData.Fill( event.ht, eweight )
 			elif plotvar=="Met":
 				HistFakeData.Fill( event.met, eweight )
+		elif isSignal( event )!="GL":
+			print isSignal( event )
 	print "******************************************************************"
 	print "looped over real data"
 else:
@@ -259,10 +262,10 @@ for name in Names: # loop over names
 				elif plotvar=="Met":
 					HistSimGen.Fill( event.met, weight*event.weight )
 					Histos[i][0].Fill( event.met, weight*event.weight )
-		if event.electrons.size()>0:
+		elif isSignal(event)=="e":
 			eweight = 1 - (1 - 0.00623) * (1 - pow(event.electrons[0].pt / 4.2 + 1,-2.9)) * (1 - 0.29 * pow(e,-0.335 * event.nTracksPV)) * (1 - 0.000223 * event.nVertex)
 			if plotvar=="PhotonPt":
-				HistSimFake.Fill( event.electrons[0].pt, eweight*event.weight )
+				HistSimFake.Fill( event.electrons[0].pt, eweight*event.weight*weight )
 				Histos[i][1].Fill( event.electrons[0].pt, eweight*event.weight*weight )
 			elif plotvar=="Ht":
 				HistSimFake.Fill( event.ht, eweight*event.weight*weight )
@@ -270,6 +273,8 @@ for name in Names: # loop over names
 			elif plotvar=="Met":
 				HistSimFake.Fill( event.met, eweight*event.weight*weight )
 				Histos[i][1].Fill( event.met, eweight*event.weight*weight )
+		elif isSignal(event)!="GL":
+			print isSignal(event)
 
 	print "******************************************************************"
 
@@ -311,7 +316,7 @@ for i,hist in enumerate(Histos):
 
 	TempClone.SetFillColor(4)
 	TempClone.SetLineColor(4)
-	TempClone.SetFillStyle(3004)
+	TempClone.SetFillStyle(3254)
 
 	hist[1].Draw("Ehist")
 	hist[0].Draw("samePEX0")
