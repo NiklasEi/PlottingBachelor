@@ -331,39 +331,39 @@ HistSimBackgroundMetNW.GetXaxis().SetTitle("E_{T}^{miss}(GeV)")
 HistSimBackgroundMetNW.GetYaxis().SetTitle("Events")
 
 # prediction and Background against Ht
-HistSimBackgroundPredictionHt = ROOT.TH1F( "SimBackgroundPredictionHt", "SimBackgroundPredictionHt", 25, 0, 1800)
+HistSimBackgroundPredictionHt = ROOT.TH1F( "SimBackgroundPredictionHt", "SimBackgroundPredictionHt", 10, 0, 1750)
 HistSimBackgroundPredictionHt.SetTitle(Title[0]+" Comparison for QCD and GJet samples")
 HistSimBackgroundPredictionHt.GetXaxis().SetTitle("Ht(GeV)")
 HistSimBackgroundPredictionHt.GetYaxis().SetTitle("Events")
 
 HistSimBackgroundPredictionHtSys = HistSimBackgroundPredictionHt.Clone("HistSimBackgroundPredictionHtSys")
 
-HistSimBackgroundHt = ROOT.TH1F( "SimBackgroundHt", "SimBackgroundHt", 25, 0, 1800)
+HistSimBackgroundHt = ROOT.TH1F( "SimBackgroundHt", "SimBackgroundHt", 10, 0, 1750)
 HistSimBackgroundHt.SetTitle(Title[0]+" Comparison for QCD and GJet samples")
 HistSimBackgroundHt.GetXaxis().SetTitle("Ht(GeV)")
 HistSimBackgroundHt.GetYaxis().SetTitle("Events")
 
 # Background no weight
-HistSimBackgroundHtNW = ROOT.TH1F( "SimBackgroundHtNW", "SimBackgroundHtNW", 25, 0, 1800)
+HistSimBackgroundHtNW = ROOT.TH1F( "SimBackgroundHtNW", "SimBackgroundHtNW", 10, 0, 1750)#25, 0, 1800
 HistSimBackgroundHtNW.SetTitle(Title[0]+" Comparison for QCD and GJet samples")
 HistSimBackgroundHtNW.GetXaxis().SetTitle("Ht(GeV)")
 HistSimBackgroundHtNW.GetYaxis().SetTitle("Events")
 
 # prediction and Background against PhotonPt
-HistSimBackgroundPredictionPhotonPt = ROOT.TH1F( "SimBackgroundPredictionPhotonPt", "SimBackgroundPredictionPhotonPt", 30, 145, 1900)
+HistSimBackgroundPredictionPhotonPt = ROOT.TH1F( "SimBackgroundPredictionPhotonPt", "SimBackgroundPredictionPhotonPt", 15, 175, 1900)
 HistSimBackgroundPredictionPhotonPt.SetTitle(Title[0]+" Comparison for QCD and GJet samples")
 HistSimBackgroundPredictionPhotonPt.GetXaxis().SetTitle("P_{T}*(GeV)")
 HistSimBackgroundPredictionPhotonPt.GetYaxis().SetTitle("Events")
 
 HistSimBackgroundPredictionPhotonPtSys = HistSimBackgroundPredictionPhotonPt.Clone("HistSimBackgroundPredictionPhotonPtSys")
 
-HistSimBackgroundPhotonPt = ROOT.TH1F( "SimBackgroundPhotonPt", "SimBackgroundPhotonPt", 30, 145, 1900)
+HistSimBackgroundPhotonPt = ROOT.TH1F( "SimBackgroundPhotonPt", "SimBackgroundPhotonPt", 15, 175, 1900)
 HistSimBackgroundPhotonPt.SetTitle(Title[0]+" Comparison for QCD and GJet samples")
 HistSimBackgroundPhotonPt.GetXaxis().SetTitle("P_{T}*(GeV)")
 HistSimBackgroundPhotonPt.GetYaxis().SetTitle("Events")
 
 # Background no weight
-HistSimBackgroundPhotonPtNW = ROOT.TH1F( "SimBackgroundPhotonPtNW", "SimBackgroundPhotonPtNW", 30, 145, 1900)
+HistSimBackgroundPhotonPtNW = ROOT.TH1F( "SimBackgroundPhotonPtNW", "SimBackgroundPhotonPtNW", 15, 175, 1900)
 HistSimBackgroundPhotonPtNW.SetTitle(Title[0]+" Comparison for QCD and GJet samples")
 HistSimBackgroundPhotonPtNW.GetXaxis().SetTitle("P_{T}*(GeV)")
 HistSimBackgroundPhotonPtNW.GetYaxis().SetTitle("Events")
@@ -384,27 +384,27 @@ HistSimBackgroundCMet.GetYaxis().SetTitle("Events")
 HistSimBackgroundCPredictionMetNW = ROOT.TH1F( "SimBackgroundCPredictionMetNW", "SimBackgroundCPredictionMetNW", 18, 0, 900)
 
 # prediction and Background against Ht in control region
-HistSimBackgroundCPredictionHt = ROOT.TH1F( "SimBackgroundCPredictionHt", "SimBackgroundCPredictionHt", 25, 0, 1800)
+HistSimBackgroundCPredictionHt = ROOT.TH1F( "SimBackgroundCPredictionHt", "SimBackgroundCPredictionHt", 10, 0, 1750)
 HistSimBackgroundCPredictionHt.SetTitle(Title[0]+" Comparison for QCD and GJet samples, E_{T}^{miss}<100")
 HistSimBackgroundCPredictionHt.GetXaxis().SetTitle("Ht(GeV)")
 HistSimBackgroundCPredictionHt.GetYaxis().SetTitle("Events")
 
 HistSimBackgroundCPredictionHtSys = HistSimBackgroundCPredictionHt.Clone("HistSimBackgroundCPredictionHtSys")
 
-HistSimBackgroundCHt = ROOT.TH1F( "SimBackgroundCHt", "SimBackgroundCHt", 25, 0, 1800)
+HistSimBackgroundCHt = ROOT.TH1F( "SimBackgroundCHt", "SimBackgroundCHt", 10, 0, 1750)
 HistSimBackgroundCHt.SetTitle(Title[0]+" Comparison for QCD and GJet samples, E_{T}^{miss}<100")
 HistSimBackgroundCHt.GetXaxis().SetTitle("Ht(GeV)")
 HistSimBackgroundCHt.GetYaxis().SetTitle("Events")
 
 # prediction and Background against PhotonPt in control region
-HistSimBackgroundCPredictionPhotonPt = ROOT.TH1F( "SimBackgroundCPredictionPhotonPt", "SimBackgroundCPredictionPhotonPt", 30, 145, 1900)
+HistSimBackgroundCPredictionPhotonPt = ROOT.TH1F( "SimBackgroundCPredictionPhotonPt", "SimBackgroundCPredictionPhotonPt", 15, 175, 1900)
 HistSimBackgroundCPredictionPhotonPt.SetTitle(Title[0]+" Comparison for QCD and GJet samples, E_{T}^{miss}<100")
 HistSimBackgroundCPredictionPhotonPt.GetXaxis().SetTitle("P_{T}*(GeV)")
 HistSimBackgroundCPredictionPhotonPt.GetYaxis().SetTitle("Events")
 
 HistSimBackgroundCPredictionPhotonPtSys = HistSimBackgroundCPredictionPhotonPt.Clone("HistSimBackgroundCPredictionPhotonPtSys")
 
-HistSimBackgroundCPhotonPt = ROOT.TH1F( "SimBackgroundCPhotonPt", "SimBackgroundCPhotonPt", 30, 145, 1900)
+HistSimBackgroundCPhotonPt = ROOT.TH1F( "SimBackgroundCPhotonPt", "SimBackgroundCPhotonPt", 15, 175, 1900)#, 30, 145, 1900
 HistSimBackgroundCPhotonPt.SetTitle(Title[0]+" Comparison for QCD and GJet samples, E_{T}^{miss}<100")
 HistSimBackgroundCPhotonPt.GetXaxis().SetTitle("P_{T}*(GeV)")
 HistSimBackgroundCPhotonPt.GetYaxis().SetTitle("Events")

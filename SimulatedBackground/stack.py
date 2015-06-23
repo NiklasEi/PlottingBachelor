@@ -15,7 +15,7 @@ QCDStack = ROOT.THStack("QCDStack", "simulated QCD")
 GJetsStack = ROOT.THStack("GJetsStack", "simulated GJets")
 
 
-Canvas = ROOT.TCanvas ("Canvas", "Canvas")
+#Canvas = ROOT.TCanvas ("Canvas", "Canvas")
 
 #programm ignores events with 0 tight photons!
 
@@ -24,7 +24,7 @@ Canvas = ROOT.TCanvas ("Canvas", "Canvas")
 plotvar="Ht" # set plotvar 
 PrintBreak=0 # if set to 1 'break pdfs' will be printed when running with BreakFill=1
 BreakFill=0 # if set to 1 the loop will break after 10000 Entries
-PrintMaps=1 # if set to 1 the maps will be printed
+PrintMaps=0 # if set to 1 the maps will be printed
 Lint = 13771. # luminosity of the data
 Title=["13.8fb^{-1}, #gamma_{tight}>0", plotvar, "Events"] # plottitle, axislabels (X,Y) is changed afterwards depending on plotvar
 MinMax = [1.,1.,1.,1.,1.] # nBin, lowBin, highBin, Min, Max
@@ -130,7 +130,7 @@ if PrintMaps:
 	print FileList
 
 	
-L = ROOT.TLegend(.6,.6,.9,.9)
+L = ROOT.TLegend(.6,.5,.9,.9)
 
 Data = ROOT.TH1F( "data", "data", MinMax[0], MinMax[1], MinMax[2] )
 
@@ -155,8 +155,9 @@ for variable in Names:
 		weight = Lint/Lsim[variable]
 		print "status set to "+status
 	tree = FileList[variable].Get("myTree")#Inputtree
-	testHis = ROOT.TH1F( variable, variable, MinMax[0], MinMax[1], MinMax[2]  )
-	testHis.SetLineWidth(1)
+	if status!="data":
+		testHis = ROOT.TH1F( variable, variable, MinMax[0], MinMax[1], MinMax[2]  )
+		testHis.SetLineWidth(1)
 	stop=0
 	for event in tree:
 		if isSignal(event)!="GT":
@@ -164,9 +165,7 @@ for variable in Names:
 		if stop==10000 and BreakFill:
 			print "breaking loop..."
 			break
-		stop+=1	
-		if event.photons.size() ==0:
-			continue
+		stop+=1
 		if status=="sim":
 			if plotvar=="PhotonPt":
 				testHis.Fill( event.photons[0].pt, weight*event.weight )
@@ -180,8 +179,6 @@ for variable in Names:
 				testHis.Fill( event.met, weight*event.weight )
 				
 		if status=="data":
-			if event.photons.size() ==0:
-				continue
 			if plotvar=="PhotonPt":
 				Data.Fill( event.photons[0].pt, weight )
 			elif plotvar=="PhotonEta":
@@ -245,7 +242,8 @@ for variable in Names:
 		print "Added "+path+variable+IDVersion+"/myTree  to GJetsStack"
 		print "identified GJets and marked Yellow"
 
-	testHis.Draw()
+	if status!="data":
+		testHis.Draw()
 	
 	if not BreakFill:
 		ROOT.gPad.SaveAs(homePath+plotvar+"/"+variable+plotvar+".pdf")
@@ -264,12 +262,13 @@ for variable in Names:
 		print "Integral is: "+str(Data.Integral())
 	if i!=8 and status=="sim":
 		integralGes+=testHis.Integral()
-	TFileStack.cd()
-	testHis.Write(variable+plotvar)
+	if status!="data":
+		TFileStack.cd()
+		testHis.Write(variable+plotvar)
 	i+=1
 	print "******************************************************************"
 
-Canvas.cd()
+#Canvas.cd()
 QCDStack.SetMinimum( 0.001 )
 QCDStack.SetMaximum( 1000000 )
 QCDStack.Draw()
@@ -292,7 +291,6 @@ print "looping over T5wg"
 T5wg1 = ROOT.TFile(path+"T5wg_1000_175_tree.root")
 T5wg2 = ROOT.TFile(path+"T5wg_1200_1025_tree.root")
 T5wg1tree = T5wg1.Get("myTree")
-T5wg2tree = T5wg2.Get("myTree")
 HistT5wg1 = ROOT.TH1F( "T5wg1", "T5wg1", MinMax[0], MinMax[1], MinMax[2]  )
 HistT5wg2 = ROOT.TH1F( "T5wg2", "T5wg2", MinMax[0], MinMax[1], MinMax[2]  )
 sigwg1 = 0.0243547
@@ -321,6 +319,7 @@ HistT5wg1.Draw()
 ROOT.gPad.SaveAs(homePath+"T5wg1"+plotvar+".pdf")
 		
 
+T5wg2tree = T5wg2.Get("myTree")
 weight = Lint/LT5wg2
 for event in T5wg2tree:		
 	if isSignal(event)!="GT":
@@ -341,7 +340,7 @@ ROOT.gPad.SaveAs(homePath+"T5wg2"+plotvar+".pdf")
 
 
 print "******************************************************************"	
-L.AddEntry(Data, "Data", "lep")
+#Canvas.cd()
 Data.SetFillStyle(0)
 Data.SetLineColor(ROOT.kBlack)
 Data.SetLineWidth(2)
@@ -352,10 +351,13 @@ Data.Draw()
 ROOT.gPad.SaveAs(homePath+plotvar+"/"+"ChainedData"+plotvar+".pdf")
 
 
+
+stack.SetTitle(Title[0])
 stack.SetMinimum( MinMax[3] )
 stack.SetMaximum( MinMax[4] )
-stack.Draw()
-stack.SetTitle(Title[0])
+
+
+stack.Draw("")
 stack.GetXaxis().SetTitle(Title[1])
 stack.GetYaxis().SetTitle(Title[2])
 stack.GetXaxis().SetTitleOffset(1)
@@ -366,12 +368,7 @@ ROOT.gPad.SaveAs(homePath+plotvar+"/"+"Background"+plotvar+".pdf")
 
 
 
-#stack.Draw("")
-"""
-testHis.SetMinimum( MinMax[3] )
-testHis.SetMaximum( MinMax[4] )
-testHis.Draw("samePE")
-"""
+
 HistT5wg1.SetLineColor(ROOT.kGreen)
 HistT5wg1.SetMinimum( MinMax[3] )
 HistT5wg1.SetMaximum( MinMax[4] )
@@ -381,18 +378,16 @@ HistT5wg2.SetLineColor(ROOT.kRed)
 HistT5wg2.SetMinimum( MinMax[3] )
 HistT5wg2.SetMaximum( MinMax[4] )
 HistT5wg2.Draw("same")
-Data.Draw("same PEX0")
 L.AddEntry(HistT5wg2, "T5wg_1200_1025", "l")
-L.Draw()
-#ROOT.gPad.Update()
-#ROOT.gPad.RedrawAxis()
+Data.Draw("same PEX0")
+L.AddEntry(Data, "Data", "lep")
+ROOT.gPad.Update()
+ROOT.gPad.RedrawAxis()
+#L.Draw()
 
-#if not BreakFill:
-#ROOT.gPad.SaveAs(homePath+"Stack"+plotvar+".pdf")
-	
-	
-#if BreakFill and PrintBreak:
-#	ROOT.gPad.SaveAs(homePath+"Stack"+plotvar+"Break.pdf")
+
+ROOT.gPad.SaveAs(homePath+"Stack"+plotvar+".pdf")
+
 
 
 TFileStack.cd()
