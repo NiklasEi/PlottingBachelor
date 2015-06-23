@@ -1414,6 +1414,7 @@ LMetC.Draw()
 ROOT.gPad.SaveAs(homePath+"Sim/"+"ComparisonSimMetControllRegion.pdf")
 HistSimBackgroundCPredictionMet.Write()
 HistSimBackgroundCMet.Write()
+HistSimBackgroundCMetNW.Write()
 HistSimBackgroundCPredictionMetSys.Write()
 
 LHtC = ROOT.TLegend(.6,.75,.9,.9)
@@ -1439,6 +1440,7 @@ LHtC.Draw()
 ROOT.gPad.SaveAs(homePath+"Sim/"+"ComparisonSimHtControllRegion.pdf")
 HistSimBackgroundCPredictionHt.Write()
 HistSimBackgroundCHt.Write()
+HistSimBackgroundCHtNW.Write()
 HistSimBackgroundCPredictionHtSys.Write()
 
 LPhotonPtC = ROOT.TLegend(.6,.75,.9,.9)
@@ -1464,6 +1466,7 @@ LPhotonPtC.Draw()
 ROOT.gPad.SaveAs(homePath+"Sim/"+"ComparisonSimPtControllRegion.pdf")
 HistSimBackgroundCPredictionPhotonPt.Write()
 HistSimBackgroundCPhotonPt.Write()
+HistSimBackgroundCPhotonPtNW.Write()
 HistSimBackgroundCPredictionPhotonPtSys.Write()
 
 
